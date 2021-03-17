@@ -4,21 +4,15 @@ see https://www.codeproject.com/articles/856020/draw-behind-desktop-icons-in-win
 
 import pygame
 import math
-from random import randint
 import random
-import PIL
-from PIL import Image , ImageFilter
-import sys
-
-import os
 import platform
 import win32gui
+
 if platform.system() != 'Windows':
     exit(1)
 
 
 class Circle:
-
     global size
 
     def __init__(self, x, y):
@@ -111,12 +105,12 @@ progman = find_progman()
 # https://docs.microsoft.com/en-us/dotnet/api/microsoft.crm.unifiedservicedesk.dynamics.controls.nativemethods.sendmessagetimeoutflags?view=dynamics-usd-3
 
 result = win32gui.SendMessageTimeout(
-            int(progman),
-            int(0x052C),
-            0,
-            0,
-            0,
-            1000
+    int(progman),
+    int(0x052C),
+    0,
+    0,
+    0,
+    1000
 )
 workerw = find_workerw()
 
@@ -129,50 +123,41 @@ n = 1
 if run:
     pygame.init()
     # Set up the drawing window
-    screen = pygame.display.set_mode((0,0), flags=pygame.NOFRAME, vsync=1)
+
+    screen = pygame.display.set_mode((0, 0), flags=pygame.SHOWN , vsync=1)
+
     # set it as a child to workerw
     win32gui.SetParent(pygame.display.get_wm_info()['window'], workerw)
 
-    bg = (0, 0, 0)
+    running = True
+    bg = 38, 70, 83
+
     size = pygame.display.get_window_size()
     surface = pygame.Surface(size)
 
-    running = True
+    angle = 0.0
+    rects = []
+    pad = 10
+    rects_changed = True
     paused = False
-    surface.fill(bg)
-    changed = False
-
-    # for i in range(100):
-    clist = []
+    active = pygame.display.get_active()
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    paused = not paused
-        if not paused:
-            newCircle = add_circle()
-            if newCircle:
-                clist.append(newCircle)
-            surface.fill(bg)
+        screen.fill(bg)
+        surface.fill(bg)
+        if rects_changed:
+            colors = [(42, 157, 143, 100), (233, 196, 106)]
+            rects.clear()
+            for i in range(int((pad / 100) * size[0]), int(((100 - pad) / 100) * size[0]), 15):
+                center = (i, int(size[0] // 2) - 50)
+                rects.append((pygame.Rect(*center, 10, 100), random.uniform(0, 2 * math.pi), random.choice(colors)))
 
-            for circle in clist:
-                if circle.growing:
-                    if circle.edge():
-                        circle.growing = False
-                    else:
-                        for other in clist:
-                            if other != circle:
-                                d = math.dist((circle.x, circle.y), (other.x, other.y))
-                                if d < (circle.r + other.r):
-                                    circle.growing = False
-                    circle.grow()
-                pygame.draw.circle(surface, (255, 255, 255), (circle.x, circle.y), circle.r, width=1)
+            rects_changed = False
 
-            screen.blit(surface, (0, 0))
-            pygame.display.flip()
-            pygame.time.Clock().tick(30)
-    size = screen.get_size()
-    pygame.event.clear()
+        for rect in rects:
+            dh = math.sin(angle + rect[1])
+            pygame.draw.rect(surface, rect[2], rect[0].inflate(0, dh * 100))
 
+        screen.blit(surface, (0, 0))
+        pygame.display.flip()
+        angle += 0.1
+        pygame.time.Clock().tick(30)
