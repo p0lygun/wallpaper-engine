@@ -1,7 +1,9 @@
-from .pygame_manager import Screen, get_size
 import math
 import random
+
 import pygame
+
+from .pygame_manager import Screen, get_size
 
 
 class Wallpaper:
@@ -16,6 +18,7 @@ class Wallpaper:
         self.dh = 0
         self.bg = (38, 70, 83)
         self.setup_once = False
+
     def setup(self):
         if self.window:
             self.rects.clear()
@@ -35,7 +38,7 @@ class Wallpaper:
         if not self.setup_once:
             self.setup()
             self.setup_once = True
-        if self.angle % 2*math.pi == 0:
+        if self.angle % 2 * math.pi == 0:
             self.angle = 0
             self.setup()
         self.window.tick()
@@ -43,9 +46,7 @@ class Wallpaper:
 
         self.window.surface.fill(self.bg)
         for rect in self.rects:
-            self.dh = math.sin(self.angle+rect[1])
+            self.dh = math.sin(self.angle + rect[1])
             pygame.draw.rect(self.window.surface, rect[2], rect[0].inflate(0, self.dh * 100))
         self.angle += 0.1
         self.window.update()
-
-

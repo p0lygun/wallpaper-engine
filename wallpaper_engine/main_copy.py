@@ -1,8 +1,8 @@
-import win32gui
-import pathlib
 import importlib
+import pathlib
+
 import win32con
-import os
+import win32gui
 
 any_maximized = False
 found = False
@@ -75,6 +75,7 @@ def set_active_window_class(hwnd, ctx):
                 active_window_class = (hex(hwnd), win32gui.GetWindowText(hwnd), win32gui.GetClassName(hwnd))
     if not found:
         any_maximized = False
+
 
 def get_window_state(hwnd=None, class_name=None):
     """

@@ -1,6 +1,7 @@
+import importlib
+
 import pygame
 import win32gui
-import importlib
 
 
 def get_size():
@@ -22,13 +23,13 @@ class Screen:
     def _init_screen(self):
         pygame.init()
         workerw = importlib.import_module(".main_copy", package="wallpaper_engine").workerw
-        self.screen_instance = pygame.display.set_mode((0, 0), flags=pygame.HIDDEN,vsync=1)
+        self.screen_instance = pygame.display.set_mode((0, 0), flags=pygame.HIDDEN, vsync=1)
         win32gui.SetParent(pygame.display.get_wm_info()['window'], workerw)
-        self.screen_instance = pygame.display.set_mode((0, 0), flags=pygame.SHOWN,vsync=1)
+        self.screen_instance = pygame.display.set_mode((0, 0), flags=pygame.SHOWN, vsync=1)
 
         self.surface = pygame.Surface(get_size())
 
-    def fill(self,color):
+    def fill(self, color):
         """color -> tuple (R, G, B)"""
         if type(color) == tuple:
             self.surface.fill(color)
@@ -47,7 +48,3 @@ class Screen:
         """Updates  screen"""
         self.screen_instance.blit(self.surface, (0, 0))
         pygame.display.flip()
-
-
-
-

@@ -2,10 +2,11 @@
 see https://www.codeproject.com/articles/856020/draw-behind-desktop-icons-in-windows-plus for explanation
 """
 
-import pygame
 import math
-import random
 import platform
+import random
+
+import pygame
 import win32gui
 
 if platform.system() != 'Windows':
@@ -124,7 +125,7 @@ if run:
     pygame.init()
     # Set up the drawing window
 
-    screen = pygame.display.set_mode((0, 0), flags=pygame.SHOWN , vsync=1)
+    screen = pygame.display.set_mode((0, 0), flags=pygame.SHOWN, vsync=1)
 
     # set it as a child to workerw
     win32gui.SetParent(pygame.display.get_wm_info()['window'], workerw)
