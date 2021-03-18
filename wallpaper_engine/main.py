@@ -1,51 +1,20 @@
-"""
-see https://www.codeproject.com/articles/856020/draw-behind-desktop-icons-in-windows-plus for explanation
-"""
-
-import math
-import platform
-import random
-
-import pygame
+import importlib
+import os
+import pathlib
+import win32con
 import win32gui
 
-if platform.system() != 'Windows':
-    exit(1)
 
-
-class Circle:
-    global size
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.r = 5
-        self.growing = True
-
-    def grow(self):
-        if self.growing:
-            self.r += 1
-
-    def edge(self):
-        global size
-        return self.x + self.r > size[0] or self.x - self.r < 0 or self.y + self.r > size[1] or self.y - self.r < 0
-
-
-def add_circle():
-    global clist
-    global size
-    x = random.randint(0, size[0])
-    y = random.randint(0, size[1])
-    valid = True
-    for c in clist:
-        dis = math.dist((x, y), (c.x, c.y))
-        if dis < c.r + 5:
-            valid = False
-            break
-    if valid:
-        return Circle(x, y)
-    else:
-        False
+# from .data.storage import Storage
+# import wallpaper_project.wallpaper_engine.wallpapers.pygame_manager as pygame_manager
+from .wallpapers import pygame_manager
+from .data.shared import storage as global_storage
+# global_storage = Storage()
+any_maximized = False
+found = False
+active_window_class = None
+workerw = None
+debug = True
 
 
 def enum_windows():
@@ -99,66 +68,95 @@ def find_workerw():
             )
 
 
-progman = find_progman()
-# send message to Program manager
-# int,int = SendMessageTimeout(hwnd, message , wparam , lparam , flags , timeout )
-# for SendMessageTimeoutFlags check
-# https://docs.microsoft.com/en-us/dotnet/api/microsoft.crm.unifiedservicedesk.dynamics.controls.nativemethods.sendmessagetimeoutflags?view=dynamics-usd-3
+def set_active_window_class(hwnd, ctx):
+    global active_window_class
+    global any_maximized
+    global found
+    if win32gui.IsWindowVisible(hwnd):
+        if get_window_state(hwnd=hwnd) == win32con.SW_SHOWMAXIMIZED and not found:
+            any_maximized = True
+            found = True
 
-result = win32gui.SendMessageTimeout(
-    int(progman),
-    int(0x052C),
-    0,
-    0,
-    0,
-    1000
-)
-workerw = find_workerw()
-
-# now the fun begins
-# https://www.pygame.org/docs/ref/display.html#pygame.display.init
+        if win32gui.IsIconic(hwnd):
+            if hwnd == win32gui.GetForegroundWindow():
+                active_window_class = (hex(hwnd), win32gui.GetWindowText(hwnd), win32gui.GetClassName(hwnd))
+    if not found:
+        any_maximized = False
 
 
-run = True
-n = 1
-if run:
-    pygame.init()
-    # Set up the drawing window
+def get_window_state(hwnd=None, class_name=None):
+    """
+        hwnd : int
+        class_name : str
 
-    screen = pygame.display.set_mode((0, 0), flags=pygame.SHOWN, vsync=1)
+        returns
+            win32con.SW_SHOWMAXIMIZED for maximized
+            win32con.SW_SHOWNORMAL for normal
+            win32con.SW_SHOWMINIMIZED for minimized
+            0 if no window is found
+    """
 
-    # set it as a child to workerw
-    win32gui.SetParent(pygame.display.get_wm_info()['window'], workerw)
+    window = 0
+    if hwnd or class_name:
+        if hwnd:
+            class_name = win32gui.GetClassName(hwnd)
+            window = win32gui.FindWindow(str(class_name), None)
+        else:
+            window = win32gui.FindWindow(str(class_name), None)
 
+    if window:
+        tup = win32gui.GetWindowPlacement(window)
+        if tup[1] == win32con.SW_SHOWMAXIMIZED:
+            return win32con.SW_SHOWMAXIMIZED
+
+        elif tup[1] == win32con.SW_SHOWMINIMIZED:
+            return win32con.SW_SHOWMINIMIZED
+
+        elif tup[1] == win32con.SW_SHOWNORMAL:
+            return win32con.SW_SHOWNORMAL
+    return 0
+
+
+def start(wallpaper_name):
+    global active_window_class
+    global workerw
+    global any_maximized
+    global found
+    global_storage.store("debug", debug)
+    if wallpaper_name not in (pathlib.Path(__file__) / 'wallpaper').glob('*.py') and wallpaper_name == "pygame_manager":
+        print("Wallpaper Not Found")
+        exit(-1)
+    progman = find_progman()
+    win32gui.SendMessageTimeout(
+        int(progman),
+        int(0x052C),
+        0,
+        0,
+        0,
+        1000
+    )
+    workerw = find_workerw()
     running = True
-    bg = 38, 70, 83
+    wallpaper = importlib.import_module('.wallpapers.' + wallpaper_name, package='wallpaper_engine').Wallpaper()
+    wallpaper.setup()
 
-    size = pygame.display.get_window_size()
-    surface = pygame.Surface(size)
-
-    angle = 0.0
-    rects = []
-    pad = 10
-    rects_changed = True
-    paused = False
-    active = pygame.display.get_active()
     while running:
-        screen.fill(bg)
-        surface.fill(bg)
-        if rects_changed:
-            colors = [(42, 157, 143, 100), (233, 196, 106)]
-            rects.clear()
-            for i in range(int((pad / 100) * size[0]), int(((100 - pad) / 100) * size[0]), 15):
-                center = (i, int(size[0] // 2) - 50)
-                rects.append((pygame.Rect(*center, 10, 100), random.uniform(0, 2 * math.pi), random.choice(colors)))
+        try:
+            found = False
+            win32gui.EnumWindows(set_active_window_class, None)
+        except Exception as e:
+            print(e)
+            raise
+        if not any_maximized:
+            focus_on_desktop = True
+        else:
+            focus_on_desktop = False
+        global_storage.store('focus_on_desktop', focus_on_desktop)
 
-            rects_changed = False
+        # pygame freeze
+        # if pygame.events.get() is not called
+        # windows thinks  its not accepting events
+        pygame_manager.events()
 
-        for rect in rects:
-            dh = math.sin(angle + rect[1])
-            pygame.draw.rect(surface, rect[2], rect[0].inflate(0, dh * 100))
-
-        screen.blit(surface, (0, 0))
-        pygame.display.flip()
-        angle += 0.1
-        pygame.time.Clock().tick(30)
+        if focus_on_desktop:
+            wallpaper.update()
