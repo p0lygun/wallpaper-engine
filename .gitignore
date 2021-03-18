@@ -210,3 +210,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 /test.py
+/tmp_run.bat
