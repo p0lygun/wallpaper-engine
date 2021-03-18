@@ -1,15 +1,11 @@
 import importlib
-import os
 import pathlib
 import win32con
 import win32gui
 
-
-# from .data.storage import Storage
-# import wallpaper_project.wallpaper_engine.wallpapers.pygame_manager as pygame_manager
 from .wallpapers import pygame_manager
 from .data.shared import storage as global_storage
-# global_storage = Storage()
+
 any_maximized = False
 found = False
 active_window_class = None
