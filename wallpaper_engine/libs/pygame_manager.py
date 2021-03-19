@@ -62,8 +62,12 @@ class Screen:
         if type(color) == tuple:
             self.surface.fill(color)
 
-    def tick(self, tick_rate=30):
-        self._tick = tick_rate
+    def tick(self, tick_rate=None):
+        if not self._tick and tick_rate is None:
+            self._tick = 30
+        else:
+            if type(tick_rate) == int:
+                self._tick = tick_rate
         pygame.time.Clock().tick(self._tick)
 
     def reset_screen(self):
