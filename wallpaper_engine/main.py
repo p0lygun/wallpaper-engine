@@ -3,14 +3,14 @@ import pathlib
 import win32con
 import win32gui
 
-from .wallpapers import pygame_manager
+from .libs import pygame_manager
 from .data.shared import storage as global_storage
 
 any_maximized = False
 found = False
 active_window_class = None
 workerw = None
-debug = True
+debug = False
 
 
 def enum_windows():
@@ -155,4 +155,6 @@ def start(wallpaper_name):
         pygame_manager.events()
 
         if focus_on_desktop:
+            wallpaper.window.reset_screen()
+            wallpaper.window.reset_surface()
             wallpaper.update()
