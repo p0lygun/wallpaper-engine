@@ -39,7 +39,8 @@ class Screen:
         workerw = importlib.import_module(".main", package="wallpaper_engine").workerw
         if global_storage.get('debug'):
             """if debug is true then don't attach the pygame to workERW instance"""
-            self.screen_instance = pygame.display.set_mode((480, 480), flags=pygame.SHOWN, vsync=1)
+            size = 720
+            self.screen_instance = pygame.display.set_mode((size,size), flags=pygame.SHOWN, vsync=1)
 
             # fix it to be topmost
             win32gui.SetWindowPos(
@@ -73,5 +74,7 @@ class Screen:
 
     def update(self):
         """Updates  screen"""
+        self.tick()
         self.screen_instance.blit(self.surface, (0, 0))
         pygame.display.flip()
+
