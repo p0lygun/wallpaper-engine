@@ -3,7 +3,7 @@ import random
 
 import pygame
 
-from .pygame_manager import Screen, get_size
+from wallpaper_project.wallpaper_engine.libs.pygame_manager import Screen, get_size
 
 
 class Wallpaper:
@@ -21,7 +21,9 @@ class Wallpaper:
 
     def setup(self):
         if self.window:
+            self.window.bg = self.bg
             self.rects.clear()
+            self.window.tick(tick_rate=30)
             for i in range(
                     int((self.pad / 100) * get_size()[0]),
                     int(((100 - self.pad) / 100) * get_size()[0]),
@@ -41,10 +43,7 @@ class Wallpaper:
         if self.angle % 2 * math.pi == 0:
             self.angle = 0
             self.setup()
-        self.window.tick()
-        self.window.reset_surface()
 
-        self.window.surface.fill(self.bg)
         for rect in self.rects:
             self.dh = math.sin(self.angle + rect[1])
             pygame.draw.rect(self.window.surface, rect[2], rect[0].inflate(0, self.dh * 100))
