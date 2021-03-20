@@ -1,10 +1,11 @@
 import importlib
+import logging
 import os
 import win32con
 import pygame
 import win32gui
-pygame.init()
 from ..data.shared import storage as global_storage
+logger = logging.getLogger(global_storage.get('logger_name'))
 
 
 def get_size():
