@@ -34,6 +34,19 @@ class Storage:
                     else:
                         Storage._global_store_file.update(dict_object)
 
+    def touch(self, key, value=None):
+        if self.local:
+            if key not in self._store_file.keys():
+                self._store_file[key] = value
+            else:
+                return
+        else:
+            if key not in Storage._global_store_file.keys():
+                Storage._global_store_file = value
+            else:
+                return
+
+
     def get_storage_file(self):
         if self.local:
             return self._store_file
