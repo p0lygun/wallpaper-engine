@@ -10,7 +10,7 @@ any_maximized = False
 found = False
 active_window_class = None
 workerw = None
-debug = False
+debug = True
 
 
 def enum_windows():
@@ -113,12 +113,13 @@ def get_window_state(hwnd=None, class_name=None):
     return 0
 
 
-def start(wallpaper_name):
+def start(wallpaper_name, theme):
     global active_window_class
     global workerw
     global any_maximized
     global found
     global_storage.store("debug", debug)
+
     if wallpaper_name not in (pathlib.Path(__file__) / 'wallpaper').glob('*.py') and wallpaper_name == "pygame_manager":
         print("Wallpaper Not Found")
         exit(-1)
@@ -134,15 +135,17 @@ def start(wallpaper_name):
     workerw = find_workerw()
     running = True
     wallpaper = importlib.import_module('.wallpapers.' + wallpaper_name, package='wallpaper_engine').Wallpaper()
-    wallpaper.setup()
+    wallpaper.setup(theme=theme)
 
     while running:
         try:
-            found = False
-            win32gui.EnumWindows(set_active_window_class, None)
+            if not debug:
+                found = False
+                win32gui.EnumWindows(set_active_window_class, None)
         except Exception as e:
             print(e)
             raise
+        focus_on_desktop = True
         if not any_maximized:
             focus_on_desktop = True
         else:
@@ -152,7 +155,8 @@ def start(wallpaper_name):
         # pygame freeze
         # if pygame.events.get() is not called
         # windows thinks  its not accepting events
-        pygame_manager.events()
+        if debug:
+            pygame_manager.events()
 
         if focus_on_desktop:
             wallpaper.window.reset_screen()

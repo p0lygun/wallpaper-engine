@@ -3,8 +3,7 @@ import random
 
 import pygame
 
-from wallpaper_project.wallpaper_engine.libs.pygame_manager import Screen, get_size
-
+from ..libs.pygame_manager import Screen, get_size
 
 class Wallpaper:
 

@@ -3,7 +3,7 @@ import os
 import win32con
 import pygame
 import win32gui
-
+pygame.init()
 from ..data.shared import storage as global_storage
 
 
@@ -63,11 +63,17 @@ class Screen:
             self.surface.fill(color)
 
     def tick(self, tick_rate=None):
-        if not self._tick and tick_rate is None:
-            self._tick = 30
-        else:
-            if type(tick_rate) == int:
+        if not self._tick:
+            if tick_rate is None:
+                self._tick = 30
+            else:
                 self._tick = tick_rate
+        else:
+            if tick_rate:
+                self._tick = tick_rate
+            else:
+                pygame.time.Clock().tick(self._tick)
+                return
         pygame.time.Clock().tick(self._tick)
 
     def reset_screen(self):

@@ -30,14 +30,27 @@ class Wallpaper:
         self.bg = (38, 70, 83)
         self.alpha = 150
         self.colors = [(42, 157, 143, self.alpha), (233, 196, 106, self.alpha)]
-        self.tracer_color = colors['blue']
+        self.themes = ['trail', 'chasing']
+        self.theme = None
+        self.trail_color = None
+        self.chasing_trail_length = 256
+        self.trail_both = False
 
         self.points = []
-        self.chasing = False
 
         self.setup_once = False
 
-    def setup(self):
+    def setup(self, theme='trail'):
+
+        if theme in self.themes:
+            self.theme = theme
+            if theme == 'trail':
+                self.trail_color = colors['white']
+            elif theme == 'chasing':
+                self.trail_color = colors['blue']
+        else:
+            raise ValueError(f"Theme {theme} not found available themes {self.themes}")
+
         self.angle = [math.pi / 2, 0]
         self.window.tick(tick_rate=60)
 
@@ -86,8 +99,8 @@ class Wallpaper:
         x2 = int(x2)
         y2 = int(y2)
 
-        if self.chasing:
-            if len(self.points) > 256:
+        if self.theme == 'chasing':
+            if len(self.points) > self.chasing_trail_length:
                 self.points = self.points[1:]
 
         if not ((x1, y1), (x2, y2)) in self.points:
@@ -96,24 +109,27 @@ class Wallpaper:
         pairs = [self.points[i:i+2] for i in range(len(self.points))]
 
         for index, points in enumerate(pairs):
-            if len(self.points) > 255 and self.chasing:
-                self.tracer_color[-1] = index % 255
+            if self.theme == 'chasing':
+                if len(self.points) > self.chasing_trail_length-1:
+                    self.trail_color[-1] = index % 255
+            elif self.theme == 'trail':
+                self.trail_color[-1] = index % 255
             if len(points) == 1:
                 # noinspection PyTypeChecker
-                pygame.gfxdraw.pixel(self.window.surface, *points[0][1], self.tracer_color)
+                pygame.gfxdraw.pixel(self.window.surface, *points[0][1], self.trail_color)
             else:
                 # noinspection PyTypeChecker
-                pygame.gfxdraw.line(self.window.surface, *points[0][1], *points[1][1], self.tracer_color)
+                pygame.gfxdraw.line(self.window.surface, *points[0][1], *points[1][1], self.trail_color)
 
         # layering
 
         # second Pendulum
-        pygame.gfxdraw.line(self.window.surface, x1, y1, x2, y2, self.colors[1])
+        pygame.draw.aaline(self.window.surface,self.colors[1], (x1, y1), (x2, y2))
         pygame.gfxdraw.filled_circle(self.window.surface, x2, y2, 5*self.mass[1], self.colors[0])
 
         # first Pendulum
         # noinspection PyTypeChecker
-        pygame.gfxdraw.line(self.window.surface, *self.origin, x1, y1, self.colors[1])
+        pygame.draw.aaline(self.window.surface,self.colors[1], self.origin, (x1,y1))
         pygame.gfxdraw.filled_circle(self.window.surface, x1, y1, 5*self.mass[0], self.colors[0])
 
         self.window.update()
