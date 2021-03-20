@@ -1,9 +1,15 @@
 from ..libs.storage import Storage
 import pygame
 global storage
-storage = Storage()
-storage.store('pygame_font',pygame.font.Font('freesansbold.ttf', 15))
 global colors
+
+storage = Storage()
+
+
+def init():
+    storage.store('pygame_font', pygame.font.Font('freesansbold.ttf', 15))
+
+
 colors = dict()
 
 colors['white'] = [255, 255, 255, 255]
