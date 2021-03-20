@@ -1,19 +1,32 @@
 import importlib
+import logging
 import pathlib
+from functools import lru_cache
 import win32con
 import win32gui
 
-from .libs import pygame_manager
+from .data.shared import init
 from .data.shared import storage as global_storage
+from .libs import pygame_manager
+from .libs.storage import Storage
+
+global logger
 
 any_maximized = False
 found = False
 active_window_class = None
 workerw = None
-debug = True
+debug = global_storage.get("debug")
+local_storage = Storage(local=True)
+
+
+@lru_cache(None)
+def clog(message : str):
+    logger.debug(message)
 
 
 def enum_windows():
+    logger.debug(f'enum windows for finding progman')
     wlist = dict()
     win32gui.EnumWindows(
         lambda hwnd, result_list:
@@ -31,6 +44,7 @@ def find_progman() -> hex:
 
 
 def find_workerw():
+    logger.debug("Finding workew...")
     """ returns the handle for workerw """
 
     """
@@ -56,26 +70,42 @@ def find_workerw():
 
         if p != 0:
             '''Gets the WorkerW Window after the current one.'''
-            return win32gui.FindWindowEx(
+            workerw_handle = win32gui.FindWindowEx(
                 0,
                 tophandle,
                 "WorkerW",
                 None
             )
+            logger.debug(f"Found workew... {hex(workerw_handle)}")
+            return workerw_handle
 
 
 def set_active_window_class(hwnd, ctx):
+    clog('In active')
     global active_window_class
     global any_maximized
     global found
+    exceptions = []
+    if global_storage.get('debug'):
+        exceptions.append("SunAwtFrame")
+
+    if win32gui.GetClassName(hwnd) in exceptions:
+        return
     if win32gui.IsWindowVisible(hwnd):
         if get_window_state(hwnd=hwnd) == win32con.SW_SHOWMAXIMIZED and not found:
             any_maximized = True
             found = True
+            if local_storage.get('MaxWindow') == hwnd:
+                pass
+            else:
+                local_storage.store('MaxWindow', hwnd)
+                logger.debug(
+                    f'found maximized window {hwnd}, {win32gui.GetClassName(hwnd)}, {win32gui.GetWindowText(hwnd)}')
 
         if win32gui.IsIconic(hwnd):
             if hwnd == win32gui.GetForegroundWindow():
                 active_window_class = (hex(hwnd), win32gui.GetWindowText(hwnd), win32gui.GetClassName(hwnd))
+
     if not found:
         any_maximized = False
 
@@ -118,12 +148,16 @@ def start(wallpaper_name, theme):
     global workerw
     global any_maximized
     global found
-    global_storage.store("debug", debug)
+    global logger
 
+    logger = logging.getLogger(global_storage.get('logger_name'))
+
+    logger.debug(f"Starting main with wallpaper {wallpaper_name}, and theme {theme}")
     if wallpaper_name not in (pathlib.Path(__file__) / 'wallpaper').glob('*.py') and wallpaper_name == "pygame_manager":
-        print("Wallpaper Not Found")
-        exit(-1)
+        raise ValueError("Wallpaper Not Found")
+    logger.debug("Finding progman")
     progman = find_progman()
+    logger.debug(f"Found progman {progman} Sending Message....")
     win32gui.SendMessageTimeout(
         int(progman),
         int(0x052C),
@@ -132,20 +166,27 @@ def start(wallpaper_name, theme):
         0,
         1000
     )
+    logger.debug("Done")
+    logger.debug("Finding Workerw")
     workerw = find_workerw()
     running = True
+
     wallpaper = importlib.import_module('.wallpapers.' + wallpaper_name, package='wallpaper_engine').Wallpaper()
     wallpaper.setup(theme=theme)
+
+    # shared init for fonts
+    init()
+    logger.debug("initial start successful")
 
     while running:
         try:
             if not debug:
                 found = False
+                clog('Find any maximized window...')
                 win32gui.EnumWindows(set_active_window_class, None)
         except Exception as e:
             print(e)
             raise
-        focus_on_desktop = True
         if not any_maximized:
             focus_on_desktop = True
         else:
@@ -155,10 +196,12 @@ def start(wallpaper_name, theme):
         # pygame freeze
         # if pygame.events.get() is not called
         # windows thinks  its not accepting events
-        if debug:
+        if global_storage.get('debug'):
+            clog("checking for events")
             pygame_manager.events()
 
         if focus_on_desktop:
+            clog("calling updates")
             wallpaper.window.reset_screen()
             wallpaper.window.reset_surface()
             wallpaper.update()
