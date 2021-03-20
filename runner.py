@@ -1,17 +1,18 @@
 import sys
-from wallpaper_engine import main
+import logging
 from wallpaper_engine.data.shared import storage
 
-import logging
-
-logger = logging.getLogger('WE_LOGGER')
+storage.store('logger_name', 'WE_LOGGER')
+logger = logging.getLogger(storage.get('logger_name'))
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(filename)s - %(funcName)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
-
 logger.addHandler(ch)
+
+
+from wallpaper_engine import main
 
 if __name__ == '__main__':
     wallpaper = None
