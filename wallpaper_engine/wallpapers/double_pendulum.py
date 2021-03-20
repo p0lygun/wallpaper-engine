@@ -40,16 +40,20 @@ class Wallpaper:
 
         self.setup_once = False
 
-    def setup(self, theme='trail'):
+    def setup(self, theme=None):
 
-        if theme in self.themes:
-            self.theme = theme
-            if theme == 'trail':
-                self.trail_color = colors['white']
-            elif theme == 'chasing':
-                self.trail_color = colors['blue']
+        if theme is not None:
+            if theme in self.themes:
+                self.theme = theme
+                if theme == 'trail':
+                    self.trail_color = colors['white']
+                elif theme == 'chasing':
+                    self.trail_color = colors['blue']
+            else:
+                raise ValueError(f"Theme {theme} not found available themes {self.themes}")
         else:
-            raise ValueError(f"Theme {theme} not found available themes {self.themes}")
+            self.theme = 'trail'
+            self.trail_color = colors['white']
 
         self.angle = [math.pi / 2, 0]
         self.window.tick(tick_rate=60)
