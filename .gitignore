@@ -211,3 +211,4 @@ dmypy.json
 cython_debug/
 /test.py
 /tmp_run.bat
+/wallpaper_engine/libs/windows_inspector.py
