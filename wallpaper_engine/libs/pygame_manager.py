@@ -20,8 +20,7 @@ def events():
 
                 quit(0)
     else:
-        pygame.event.get()
-
+        pygame.event.pump()
 
 class Screen:
     """pygame screen"""
