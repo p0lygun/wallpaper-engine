@@ -56,7 +56,7 @@ class Wallpaper:
             self.trail_color = colors['white']
 
         self.angle = [math.pi / 2, 0]
-        self.window.tick(tick_rate=60)
+        self.window.tick(tick_rate=80)
 
     def update(self):
         # angular acceleration for bob 1
