@@ -2,6 +2,8 @@ import importlib
 import logging
 import pathlib
 from functools import lru_cache
+
+import win32api
 import win32con
 import win32gui
 
@@ -21,7 +23,7 @@ local_storage = Storage(local=True)
 
 
 @lru_cache(None)
-def clog(message : str):
+def clog(message: str):
     logger.debug(message)
 
 
@@ -80,34 +82,69 @@ def find_workerw():
             return workerw_handle
 
 
-def set_active_window_class(hwnd, ctx):
+def is_maximized(hwnd):
+    if not win32gui.IsIconic(hwnd) and win32gui.IsWindowVisible(hwnd) and win32gui.GetClassName(
+            hwnd) != "ApplicationFrameWindow":
+        gwl_style = win32api.GetWindowLong(hwnd, win32con.GWL_STYLE)
+        is_visible = gwl_style & win32con.WS_VISIBLE != 0
+        is_minimized = gwl_style & win32con.WS_MINIMIZE != 0
+
+        if is_visible and not is_minimized:
+            if gwl_style & win32con.WS_MAXIMIZE != 0:
+                return True, hwnd
+
+    return False, 0
+
+
+def any_maximized_window(hwnd, ctx):
     clog('In active')
     global active_window_class
     global any_maximized
     global found
+
     exceptions = []
-    if global_storage.get('debug'):
+    if global_storage.get('debug'):  # my code editor add yours classmate here find using lib\window_inspector.py
         exceptions.append("SunAwtFrame")
 
     if win32gui.GetClassName(hwnd) in exceptions:
         return
-    if win32gui.IsWindowVisible(hwnd):
-        if get_window_state(hwnd=hwnd) == win32con.SW_SHOWMAXIMIZED and not found:
-            any_maximized = True
+
+    # if visible
+    # https://docs.microsoft.com/en-us/windows/win32/winmsg/window-styles
+
+    gwl_style = None
+    if any_maximized:
+        if is_maximized(any_maximized)[0]:
             found = True
-            if local_storage.get('MaxWindow') == hwnd:
-                pass
-            else:
-                local_storage.store('MaxWindow', hwnd)
-                logger.debug(
-                    f'found maximized window {hwnd}, {win32gui.GetClassName(hwnd)}, {win32gui.GetWindowText(hwnd)}')
+            return
+        else:
+            tmp = is_maximized(hwnd)
+            if tmp[0]:
+                any_maximized = tmp[1]
+                found = True
+                if any_maximized:
+                    if local_storage.get('MaxWindow') == hwnd:
+                        pass
+                    else:
+                        local_storage.store('MaxWindow', hwnd)
+                        logger.debug(
+                            f'found maximized window {hwnd}, {win32gui.GetClassName(hwnd)}, {win32gui.GetWindowText(hwnd)},')
+    else:
+        tmp = is_maximized(hwnd)
+        if tmp[0]:
+            any_maximized = tmp[1]
+            found = True
+            if any_maximized:
+                if local_storage.get('MaxWindow') == hwnd:
+                    pass
+                else:
+                    local_storage.store('MaxWindow', hwnd)
+                    logger.debug(
+                        f'found maximized window {hwnd}, {win32gui.GetClassName(hwnd)}, {win32gui.GetWindowText(hwnd)},')
 
-        if win32gui.IsIconic(hwnd):
-            if hwnd == win32gui.GetForegroundWindow():
-                active_window_class = (hex(hwnd), win32gui.GetWindowText(hwnd), win32gui.GetClassName(hwnd))
-
-    if not found:
-        any_maximized = False
+    if win32gui.IsIconic(hwnd):
+        if hwnd == win32gui.GetForegroundWindow():
+            active_window_class = (hex(hwnd), win32gui.GetWindowText(hwnd), win32gui.GetClassName(hwnd))
 
 
 def get_window_state(hwnd=None, class_name=None):
@@ -183,11 +220,11 @@ def start(wallpaper_name, theme):
             if not debug:
                 found = False
                 clog('Find any maximized window...')
-                win32gui.EnumWindows(set_active_window_class, None)
+                win32gui.EnumWindows(any_maximized_window, None)
         except Exception as e:
             print(e)
             raise
-        if not any_maximized:
+        if not found:
             focus_on_desktop = True
         else:
             focus_on_desktop = False
