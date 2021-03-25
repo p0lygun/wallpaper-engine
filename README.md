@@ -1,6 +1,6 @@
 # wallpaper-engine
 
-# This project is curently in alpha stages 
+# This project is curently in pre alpha stages 
 
 # Currently Windows Only
 
