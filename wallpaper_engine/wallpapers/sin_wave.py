@@ -18,11 +18,11 @@ class Wallpaper:
         self.bg = (38, 70, 83)
         self.setup_once = False
 
-    def setup(self):
+    def setup(self, theme=None):
         if self.window:
             self.window.bg = self.bg
             self.rects.clear()
-            self.window.tick(tick_rate=30)
+            self.window.tick(tick_rate=60)
             for i in range(
                     int((self.pad / 100) * get_size()[0]),
                     int(((100 - self.pad) / 100) * get_size()[0]),
