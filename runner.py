@@ -1,5 +1,7 @@
-import sys
 import logging
+import pathlib
+import sys
+from random import choice
 from wallpaper_engine.data.shared import storage
 
 storage.store('logger_name', 'WE_LOGGER')
@@ -11,10 +13,12 @@ formatter = logging.Formatter('%(asctime)s - %(filename)s - %(funcName)s - %(lev
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-
 from wallpaper_engine import main
 
 if __name__ == '__main__':
+    available_wallpapers = [i.stem for i in (pathlib.Path.cwd() / "wallpaper_engine" / "wallpapers").glob("*.py") if
+                            i.stem != "__init__"]
+    print(available_wallpapers)
     wallpaper = None
     theme = None
     storage.store('debug', False)
@@ -39,7 +43,12 @@ if __name__ == '__main__':
     if not storage.get('debug'):
         logger.setLevel(logging.INFO)
 
-    if wallpaper is None:
-        raise ValueError("specify wallpaper using --wallpaper=wallpaper_name or -W=wallpaper_name")
+    if wallpaper not in available_wallpapers:
+        if wallpaper is None:
+            # use random
+            wallpaper = choice(available_wallpapers)
+        else:
+            raise ValueError(
+                f"\n\n specify wallpaper using --wallpaper=wallpaper_name or -W=wallpaper_name \n available wallpapers {available_wallpapers}")
 
     main.start(wallpaper, theme)
