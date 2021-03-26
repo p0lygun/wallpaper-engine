@@ -4,6 +4,7 @@ import logging
 import pathlib
 from functools import lru_cache
 from time import sleep
+from random import choice
 
 import win32api
 import win32con
@@ -205,6 +206,7 @@ def start(wallpaper_name, theme):
     global logger
     global virtual_desktop_accessor
     global desktop_number
+    global debug
 
     logger = logging.getLogger(global_storage.get('logger_name'))
 
@@ -228,11 +230,14 @@ def start(wallpaper_name, theme):
     running = True
 
     wallpaper = importlib.import_module('.wallpapers.' + wallpaper_name, package='wallpaper_engine').Wallpaper()
+    if theme is None:
+        theme = choice(wallpaper.themes)
     wallpaper.setup(theme=theme)
 
     # shared init for fonts
     init()
     logger.debug("initial start successful")
+
     while running:
         try:
             if not debug:
@@ -243,7 +248,6 @@ def start(wallpaper_name, theme):
 
         except Exception as e:
             print(e)
-            raise
         if not found:
             focus_on_desktop = True
         else:
