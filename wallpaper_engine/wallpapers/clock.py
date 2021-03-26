@@ -46,7 +46,7 @@ class Wallpaper:
 
         self.base_length = int(storage.get('screen_size')[0] * 0.1)
         self.s_arm_length = 35
-        surface_size = 2*(self.base_length+self.s_arm_length)   
+        surface_size = 2*(self.base_length+self.s_arm_length)
         screen_size = storage.get("screen_size")
         surface_cords = int((screen_size[0] // 2) - (surface_size // 2)), int(
             (screen_size[1] // 2) - (surface_size // 2))
@@ -62,7 +62,7 @@ class Wallpaper:
 
         self.origin = int(surface_size // 2), int(surface_size // 2)
 
-        self.themes = ["normal"]
+        self.themes = ["normal", "pie"]
         self.theme = None
 
     def setup(self, theme):
@@ -83,19 +83,34 @@ class Wallpaper:
             h_arm_angle = int(self.time.hour * 30) - 90
             self.window.reset_surface()
 
-            for i in range(10):
-                pygame.gfxdraw.arc(self.window.surface, self.origin[0], self.origin[1],
-                                   self.base_length + self.s_arm_length - i, -90,
-                                   s_arm_angle,
-                                   self.s_arm_color)
+            if self.theme == "normal":
+                for i in range(10):
+                    pygame.gfxdraw.arc(self.window.surface, self.origin[0], self.origin[1],
+                                       self.base_length + self.s_arm_length - i, -90,
+                                       s_arm_angle,
+                                       self.s_arm_color)
 
-                pygame.gfxdraw.arc(self.window.surface, self.origin[0], self.origin[1],
-                                   self.base_length + self.m_arm_length - i, -90, m_arm_angle,
-                                   self.m_arm_color)
+                    pygame.gfxdraw.arc(self.window.surface, self.origin[0], self.origin[1],
+                                       self.base_length + self.m_arm_length - i, -90, m_arm_angle,
+                                       self.m_arm_color)
 
-                pygame.gfxdraw.arc(self.window.surface, self.origin[0], self.origin[1],
-                                   self.base_length + self.h_arm_length - i, -90, h_arm_angle,
-                                   self.h_arm_color)
+                    pygame.gfxdraw.arc(self.window.surface, self.origin[0], self.origin[1],
+                                       self.base_length + self.h_arm_length - i, -90, h_arm_angle,
+                                       self.h_arm_color)
+            elif self.theme == "pie":
+                for i in range(10):
+                    pygame.gfxdraw.pie(self.window.surface, self.origin[0], self.origin[1],
+                                       self.base_length + self.s_arm_length - i, -90,
+                                       s_arm_angle,
+                                       self.s_arm_color)
+
+                    pygame.gfxdraw.pie(self.window.surface, self.origin[0], self.origin[1],
+                                       self.base_length + self.m_arm_length - i, -90, m_arm_angle,
+                                       self.m_arm_color)
+
+                    pygame.gfxdraw.pie(self.window.surface, self.origin[0], self.origin[1],
+                                       self.base_length + self.h_arm_length - i, -90, h_arm_angle,
+                                       self.h_arm_color)
 
             self.window.surface = remove_holes(self.window.surface)
             self.window.update()
