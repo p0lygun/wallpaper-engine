@@ -5,6 +5,7 @@ import pygame
 
 from ..libs.pygame_manager import Screen, get_size
 
+
 class Wallpaper:
 
     def __init__(self):
@@ -17,6 +18,7 @@ class Wallpaper:
         self.dh = 0
         self.bg = (38, 70, 83)
         self.setup_once = False
+        self.themes = ["default"]
 
     def setup(self, theme=None):
         if self.window:
