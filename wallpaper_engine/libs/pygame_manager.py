@@ -22,13 +22,17 @@ def events():
     else:
         pygame.event.pump()
 
+
 class Screen:
     """pygame screen"""
 
-    def __init__(self):
+    def __init__(self, surface_size=None, surface_cords=None):
+        print(f"got {surface_size} , {surface_cords}")
         self.screen_instance = None
         self.surface = None
         self.surface_pos = (0, 0)
+        self.surface_size = surface_size
+        self.surface_cords = surface_cords
         self._tick = 30
         self.bg = (0, 0, 0)
 
@@ -40,7 +44,7 @@ class Screen:
         if global_storage.get('debug'):
             """if debug is true then don't attach the pygame to workERW instance"""
             size = 720
-            self.screen_instance = pygame.display.set_mode((size,size), flags=pygame.SHOWN, vsync=1)
+            self.screen_instance = pygame.display.set_mode((size, size), flags=pygame.SHOWN, vsync=1)
 
             # fix it to be topmost
             win32gui.SetWindowPos(
@@ -55,7 +59,10 @@ class Screen:
             win32gui.SetParent(pygame.display.get_wm_info()['window'], workerw)
             self.screen_instance = pygame.display.set_mode((0, 0), flags=pygame.SHOWN, vsync=1)
 
-        self.surface = pygame.Surface(get_size())
+        if self.surface_size is None:
+            self.surface = pygame.Surface(get_size())
+        else:
+            self.surface = pygame.Surface(self.surface_size)
 
     def fill(self, color):
         """color -> tuple (R, G, B)"""
@@ -85,6 +92,9 @@ class Screen:
     def update(self):
         """Updates  screen"""
         self.tick()
-        self.screen_instance.blit(self.surface, (0, 0))
+        if self.surface_cords:
+            self.screen_instance.blit(self.surface, self.surface_cords)
+        else:
+            self.screen_instance.blit(self.surface, (0, 0))
         pygame.display.flip()
 
