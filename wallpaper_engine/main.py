@@ -1,6 +1,6 @@
 import ctypes
 import importlib
-import logging
+from os import O_TMPFILE
 import pathlib
 from functools import lru_cache
 from time import sleep
@@ -10,31 +10,19 @@ import win32api
 import win32con
 import win32gui
 
-from .data.shared import init
-from .data.shared import storage as global_storage
-from .libs import pygame_manager
-from .libs.storage import Storage
-
-global logger
+from kivy.logger import Logger
 
 desktop_number = None
 any_maximized = False
 found = False
 active_window_class = None
 workerw = None
-debug = global_storage.get("debug")
-local_storage = Storage(local=True)
 virtual_desktop_accessor = ctypes.WinDLL(
     str(pathlib.Path.cwd() / "wallpaper_engine" / "libs" / "VirtualDesktopAccessor.dll"))
 
 
-@lru_cache(None)
-def clog(message: str):
-    logger.debug(message)
-
-
 def enum_windows():
-    logger.debug(f'enum windows for finding progman')
+    Logger.debug(f'enum windows for finding progman')
     wlist = dict()
     win32gui.EnumWindows(
         lambda hwnd, result_list:
@@ -52,7 +40,7 @@ def find_progman() -> hex:
 
 
 def find_workerw():
-    logger.debug("Finding workew...")
+    Logger.debug("Finding workew...")
     """ returns the handle for workerw """
 
     """
@@ -84,7 +72,7 @@ def find_workerw():
                 "WorkerW",
                 None
             )
-            logger.debug(f"Found workew... {hex(workerw_handle)}")
+            Logger.debug(f"Found workew... {hex(workerw_handle)}")
             return workerw_handle
 
 
@@ -144,8 +132,8 @@ def any_maximized_window(hwnd, ctx):
                         pass
                     else:
                         local_storage.store('MaxWindow', hwnd)
-                        logger.debug(f"{hwnd} , ")
-                        logger.debug(
+                        Logger.debug(f"{hwnd} , ")
+                        Logger.debug(
                             f'found maximized window {hwnd}, {win32gui.GetClassName(hwnd)}, {win32gui.GetWindowText(hwnd)},')
     else:
         tmp = is_maximized(hwnd)
@@ -157,7 +145,7 @@ def any_maximized_window(hwnd, ctx):
                     pass
                 else:
                     local_storage.store('MaxWindow', hwnd)
-                    logger.debug(
+                    Logger.debug(
                         f'found maximized window {hwnd}, {win32gui.GetClassName(hwnd)}, {win32gui.GetWindowText(hwnd)},')
 
     if win32gui.IsIconic(hwnd):
@@ -196,75 +184,3 @@ def get_window_state(hwnd=None, class_name=None):
         elif tup[1] == win32con.SW_SHOWNORMAL:
             return win32con.SW_SHOWNORMAL
     return 0
-
-
-def start(wallpaper_name, theme):
-    global active_window_class
-    global workerw
-    global any_maximized
-    global found
-    global logger
-    global virtual_desktop_accessor
-    global desktop_number
-    global debug
-
-    logger = logging.getLogger(global_storage.get('logger_name'))
-
-    logger.debug(f"Starting main with wallpaper {wallpaper_name}, and theme {theme}")
-    if wallpaper_name not in (pathlib.Path(__file__) / 'wallpaper').glob('*.py') and wallpaper_name == "pygame_manager":
-        raise ValueError("Wallpaper Not Found")
-    logger.debug("Finding progman")
-    progman = find_progman()
-    logger.debug(f"Found progman {progman} Sending Message....")
-    win32gui.SendMessageTimeout(
-        int(progman),
-        int(0x052C),
-        0,
-        0,
-        0,
-        1000
-    )
-    logger.debug("Done")
-    logger.debug("Finding Workerw")
-    workerw = find_workerw()
-    running = True
-
-    wallpaper = importlib.import_module('.wallpapers.' + wallpaper_name, package='wallpaper_engine').Wallpaper()
-    if theme is None:
-        theme = choice(wallpaper.themes)
-    wallpaper.setup(theme=theme)
-
-    # shared init for fonts
-    init()
-    logger.debug("initial start successful")
-
-    while running:
-        try:
-            if not debug:
-                found = False
-                clog('Find any maximized window...')
-                desktop_number = virtual_desktop_accessor.GetCurrentDesktopNumber()
-                win32gui.EnumWindows(any_maximized_window, None)
-
-        except Exception as e:
-            print(e)
-        if not found:
-            focus_on_desktop = True
-        else:
-            focus_on_desktop = False
-        global_storage.store('focus_on_desktop', focus_on_desktop)
-
-        # pygame freeze
-        # if pygame.events.get() is not called
-        # windows thinks  its not accepting events
-        pygame_manager.events()
-        if global_storage.get('debug'):
-            clog("checking for events")
-
-        if focus_on_desktop:
-            clog("calling updates")
-            wallpaper.window.reset_screen()
-            wallpaper.window.reset_surface()
-            wallpaper.update()
-        else:
-            sleep(0.5)
