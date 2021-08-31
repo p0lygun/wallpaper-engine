@@ -13,7 +13,7 @@ formatter = logging.Formatter('%(asctime)s - %(filename)s - %(funcName)s - %(lev
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-from wallpaper_engine import main
+from wallpaper_engine import __main__
 
 if __name__ == '__main__':
     available_wallpapers = [i.stem for i in (pathlib.Path.cwd() / "wallpaper_engine" / "wallpapers").glob("*.py") if
@@ -51,4 +51,4 @@ if __name__ == '__main__':
             raise ValueError(
                 f"\n\n specify wallpaper using --wallpaper=wallpaper_name or -W=wallpaper_name \n available wallpapers {available_wallpapers}")
 
-    main.start(wallpaper, theme)
+    __main__.start(wallpaper, theme)
