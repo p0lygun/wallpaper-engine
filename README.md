@@ -4,7 +4,7 @@
 
 # Currently Windows Only
 
-wallpaper-engine set your pygame output as your wallapaper to run `python runner.py`  
+wallpaper-engine set your pygame output as your wallapaper to run `poetry run python -m wallpaper_engine`  
 
 Valid name for a wallpaper is the same name as the name of the script in wallpaper directory  
 
