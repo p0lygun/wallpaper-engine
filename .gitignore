@@ -87,7 +87,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-wallpaper_engine/libs/
 lib64/
 parts/
 sdist/
@@ -211,4 +210,3 @@ dmypy.json
 cython_debug/
 /test.py
 /tmp_run.bat
-/wallpaper_engine/libs/windows_inspector.py
