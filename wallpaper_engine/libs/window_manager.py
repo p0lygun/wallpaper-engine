@@ -1,15 +1,4 @@
-"""
-todo
-    make window manager class []
-        follow :- https://www.codeproject.com/Articles/856020/Draw-Behind-Desktop-Icons-in-Windows-plus
-        1. get Progman window handle []
-        2. Send Message to Program Manager []
-        3. Obtain Handle to Newly Created Window []
-        4. set WorkerW window as the kivy's windows handle []
-
-"""
 import win32gui
-import win32api
 
 from kivy.app import App
 from kivy.core.window import Window
@@ -21,6 +10,7 @@ class WindowManager:
     def __init__(self):
         self.app = App.get_running_app()
         self.WorkerW = 0
+        self.desktop_icons = 0
 
     def set_as_wallpaper(self):
         """Set's kivy windows as wallpaper."""
@@ -37,20 +27,21 @@ class WindowManager:
         # // 0x000100EC "Program Manager"
 
         win32gui.EnumWindows(self.set_workerw, None)
+        win32gui.ShowWindow(self.WorkerW, 1)
         # set kivy window as the wallpaper
         kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
+        self.app.hwnd = self.WorkerW
         win32gui.SetParent(kivy_window, self.WorkerW)  # child , new parent
-        # win32gui.SetWindowPos(kivy_window, self.WorkerW, 0, 0, 800, 800)
+        Window.window_state = "visible"
 
-        # make window visible
-        Window.show()
+    def reset_wallpaper(self):
+        win32gui.EnumWindows(self.set_workerw, None)
+        win32gui.ShowWindow(self.WorkerW, 0)
+        win32gui.ShowWindow(self.WorkerW, 1)
 
     def set_workerw(self, hwnd, extra):
         """Set the hwnd of correct WorkerW instance."""
-        desktop_icons = win32gui.FindWindowEx(hwnd, 0, "SHELLDLL_DefView", None)
-        if desktop_icons:
-            self.WorkerW = win32gui.FindWindowEx(0, hwnd, 'WorkerW', None)
+        self.desktop_icons = win32gui.FindWindowEx(hwnd, 0, "SHELLDLL_DefView", None)
+        if self.desktop_icons:
+            self.WorkerW = win32gui.FindWindowEx(0, hwnd, "WorkerW", None)
             Logger.debug(f"WorkerW hwnd {hex(self.WorkerW)}")
-
-
-
