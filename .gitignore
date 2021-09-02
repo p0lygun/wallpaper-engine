@@ -210,3 +210,4 @@ dmypy.json
 cython_debug/
 /test.py
 /tmp_run.bat
+/wallpaper_engine/data/kivy_backend_config
