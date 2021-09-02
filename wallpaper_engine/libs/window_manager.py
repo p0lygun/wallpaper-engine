@@ -3,7 +3,9 @@ import win32gui
 from kivy.app import App
 from kivy.core.window import Window
 
-from ..utils.logger import Logger
+from ..utils.logger import LoggerClass
+
+Logger = LoggerClass(__name__)
 
 
 class WindowManager:
@@ -35,7 +37,7 @@ class WindowManager:
         Window.window_state = "visible"
 
     def reset_wallpaper(self):
-        win32gui.EnumWindows(self.set_workerw, None)
+        win32gui.EnumWindows(self.set_workerw, True)
         win32gui.ShowWindow(self.WorkerW, 0)
         win32gui.ShowWindow(self.WorkerW, 1)
 
@@ -44,4 +46,5 @@ class WindowManager:
         self.desktop_icons = win32gui.FindWindowEx(hwnd, 0, "SHELLDLL_DefView", None)
         if self.desktop_icons:
             self.WorkerW = win32gui.FindWindowEx(0, hwnd, "WorkerW", None)
-            Logger.debug(f"WorkerW hwnd {hex(self.WorkerW)}")
+            if extra:
+                Logger.debug(f"WorkerW hwnd {hex(self.WorkerW)}")
