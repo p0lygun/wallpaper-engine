@@ -1,41 +1,51 @@
 import logging
+import sys
 
 from colorama import Fore, Style
-from kivy.logger import LOG_LEVELS
 
 
 class LoggerClass:
+    logger = None
+    main = None
+    prefix = "WE"
+    section_color = Fore.RED
+    app_color = Fore.LIGHTRED_EX
 
-    def __init__(self):
-        self.prefix = "WE"
-        self.section_color = Fore.RED
-        self.logger = logging.getLogger(__name__)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(f"%(message)s")
-        ch.setFormatter(formatter)
-        self.logger.addHandler(ch)
-        self.logger.info(f"{Fore.GREEN}INFO {self.section_color}{self.prefix}-logger{Style.RESET_ALL}: setting up")
+    def __init__(self, name: str):
+        if LoggerClass.logger is None:
+            LoggerClass.logger = logging.getLogger(name)
+            ch = logging.StreamHandler(sys.stdout)
+            ch.setLevel(logging.DEBUG)
+            formatter = logging.Formatter(
+                f"{Fore.LIGHTBLACK_EX}{LoggerClass.prefix}{Style.RESET_ALL} %(message)s"
+            )
+            ch.setFormatter(formatter)
+            LoggerClass.logger.addHandler(ch)
+            LoggerClass.logger.setLevel(10)
+            LoggerClass.logger.info(
+                f"{Fore.GREEN}INFO {self.section_color}{LoggerClass.prefix}-logger{Style.RESET_ALL}: setting up"
+            )
 
     def debug(self, msg: str) -> None:
         """Passes msg to kv_logger."""
         msg = msg.split(":", maxsplit=1)
         if len(msg) == 1:
-            self.logger.debug(f"{Fore.CYAN}DEBUG {self.section_color}{self.prefix}{Style.RESET_ALL}: {''.join(msg)}")
+            self.logger.debug(f"{Fore.CYAN}DEBUG{Style.RESET_ALL} : {''.join(msg)}")
         else:
-            self.logger.debug(f"{Fore.CYAN}DEBUG {self.section_color}{self.prefix}-{msg[0]}{Style.RESET_ALL}: {msg[1]}")
+            self.logger.debug(
+                f"{Fore.CYAN}DEBUG {self.app_color}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
+            )
 
     def info(self, msg: str) -> None:
         """Passes msg to kv_logger."""
         msg = msg.split(":", maxsplit=1)
         if len(msg) == 1:
-            self.logger.info(f"{Fore.GREEN}INFO {self.section_color}{self.prefix}{Style.RESET_ALL}: {''.join(msg)}")
+            self.logger.info(f"{Fore.GREEN}INFO{Style.RESET_ALL} : {''.join(msg)}")
         else:
-            self.logger.info(f"{Fore.GREEN}INFO {self.section_color}{self.prefix}-{msg[0]}{Style.RESET_ALL}: {msg[1]}")
+            self.logger.info(
+                f"{Fore.GREEN}INFO {self.app_color}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
+            )
 
     def set_level(self, level: int):
         """set level for logger."""
         self.logger.setLevel(level)
-
-
-Logger = LoggerClass()
