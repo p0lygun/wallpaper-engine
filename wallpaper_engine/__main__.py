@@ -1,19 +1,37 @@
-from colorama import init
+import sys
+from pathlib import Path
 import win32api
 
+from colorama import init
 from kivy.config import Config
+import trio
 
-from .utils.logger import Logger
+from .utils.logger import LoggerClass
+
+Logger = LoggerClass(__name__)
+
+
+async def launch_menu():
+    command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
+    process = await trio.open_process(command)
+    if process.returncode is not None:
+        Logger.debug(str(App.get_running_app().get_application_name()))
 
 
 if __name__ == "__main__":
-    init()
-    Config.set("graphics", "borderless", "1")
-    Config.set("graphics", "resizable", "0")
-    Config.set("graphics", "width", f"{win32api.GetSystemMetrics(0)}")
-    Config.set("graphics", "height", f"{win32api.GetSystemMetrics(1)}")
-
     try:
+
+        Logger.set_level(10)
+        init()
+        trio.run(launch_menu)
+        Config.read((Path(__file__).parent / "data" / "kivy_backend_config").as_posix())
+        Config.write()
+        Config.set("graphics", "borderless", "1")
+        Config.set("kivy", "log_level", "warning")
+        Config.set("graphics", "resizable", "0")
+        Config.set("graphics", "width", f"{win32api.GetSystemMetrics(0)}")
+        Config.set("graphics", "height", f"{win32api.GetSystemMetrics(1)}")
+
         from .libs.kivy_manager import WallpaperEngine
 
         WallpaperEngine().run()
