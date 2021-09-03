@@ -2,11 +2,13 @@ try:
     from kivy.config import Config as KvConfig
 
     KvConfig.set("kivy", "log_level", "warning")
+    KvConfig.set("graphics", "window_state", "hidden")
 except ImportError:
     pass
 
 from kivy.app import App
 from kivy.lang.builder import Builder
+from kivy.core.window import Window
 import trio
 
 
@@ -66,18 +68,13 @@ class WallpaperEngine(App):
         menu_osc.server.bind(b"/pong", self.pong)
 
         async def check_connection():
-            count = 0
             menu_osc.send_message(b"/ping", [True])
             while not self.connection_ok:
-                if count < 10:
-                    menu_osc.config.reload()
-                    menu_osc.send_message(b"/ping", [True], log=False)
-                    count += 1
-                else:
-                    Logger.debug("Unable to connect to wallpaper backend exiting ...")
-                    exit(0)
-                await trio.sleep(1)
+                menu_osc.config.reload()
+                menu_osc.send_message(b"/ping", [True], log=True)
+                await trio.sleep(0.5)
             Logger.debug("Connected to wallpaper")
+            Window.show()
 
         trio.run(check_connection)
 
@@ -85,7 +82,6 @@ class WallpaperEngine(App):
         Logger.debug("Closing.... Menu")
 
     def build(self):
-        # Window.bind(on_request_close=self.on_request_close)
         return Builder.load_string(kv)
 
     def pong(self, *values):
