@@ -52,7 +52,10 @@ class WallpaperEngine(App):
         super().run()
 
     def toggle_window_visibility(self):
-        self.playing = False
+        if self.playing:
+            self.pause()
+        else:
+            self.play()
         self.window_manager.toggle_workerw_visibility()
 
     def play(self):
