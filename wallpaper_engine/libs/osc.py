@@ -14,6 +14,7 @@ class OscHighway:
         if name not in ["wallpaper", "menu"]:
             raise ValueError("Invalid name for OSC instance")
         self.server = OSCThreadServer()
+        self.sections = ["wallpaper", "menu"]
         self.name = name
 
     def getaddress(self):
@@ -21,11 +22,17 @@ class OscHighway:
 
     def start(self):
         self.server.listen(default=True)
-        if self.config.config.sections() != ["wallpaper", "menu"]:
+        if self.config.config.sections() != self.sections:
             self.config.config.setdefaults(
-                self.name,
+                "menu",
                 {
                     "port": self.server.getaddress()[1],
+                },
+            )
+            self.config.config.setdefaults(
+                "wallpaper",
+                {
+                    "port": -1,
                 },
             )
         Logger.debug(f"OSC-{self.name} : server up on {self.server.getaddress()}")
