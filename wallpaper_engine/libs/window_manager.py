@@ -11,8 +11,10 @@ Logger = LoggerClass(__name__)
 class WindowManager:
     def __init__(self):
         self.app = App.get_running_app()
+        self.hidden = False
         self.WorkerW = 0
         self.desktop_icons = 0
+        self.kivy_window = 0
 
     def set_as_wallpaper(self):
         """Set's kivy windows as wallpaper."""
@@ -31,13 +33,13 @@ class WindowManager:
         win32gui.EnumWindows(self.set_workerw, None)
         win32gui.ShowWindow(self.WorkerW, 1)
         # set kivy window as the wallpaper
-        kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
-        self.app.hwnd = self.WorkerW
-        win32gui.SetParent(kivy_window, self.WorkerW)  # child , new parent
+        self.kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
+        self.app.hwnd = self.kivy_window
+        win32gui.SetParent(self.kivy_window, self.WorkerW)  # child , new parent
         Window.window_state = "visible"
 
     def reset_wallpaper(self):
-        win32gui.EnumWindows(self.set_workerw, True)
+        win32gui.EnumWindows(self.set_workerw, False)
         win32gui.ShowWindow(self.WorkerW, 0)
         win32gui.ShowWindow(self.WorkerW, 1)
 
@@ -48,3 +50,11 @@ class WindowManager:
             self.WorkerW = win32gui.FindWindowEx(0, hwnd, "WorkerW", None)
             if extra:
                 Logger.debug(f"WorkerW hwnd {hex(self.WorkerW)}")
+
+    def toggle_workerw_visibility(self):
+        win32gui.EnumWindows(self.set_workerw, False)
+        if self.hidden:
+            win32gui.ShowWindow(self.WorkerW, 1)
+        else:
+            win32gui.ShowWindow(self.WorkerW, 0)
+            self.hidden = True
