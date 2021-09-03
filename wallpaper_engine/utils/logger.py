@@ -11,7 +11,7 @@ class LoggerClass:
     section_color = Fore.RED
     app_color = Fore.LIGHTRED_EX
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, module: str = ""):
         if LoggerClass.logger is None:
             LoggerClass.logger = logging.getLogger(name)
             ch = logging.StreamHandler(sys.stdout)
@@ -25,25 +25,30 @@ class LoggerClass:
             LoggerClass.logger.info(
                 f"{Fore.GREEN}INFO {self.section_color}{LoggerClass.prefix}-logger{Style.RESET_ALL}: setting up"
             )
+        self.module = module + ("-" if module else "")
 
     def debug(self, msg: str) -> None:
         """Passes msg to kv_logger."""
         msg = msg.split(":", maxsplit=1)
         if len(msg) == 1:
-            self.logger.debug(f"{Fore.CYAN}DEBUG{Style.RESET_ALL} : {''.join(msg)}")
+            self.logger.debug(
+                f"{Fore.CYAN}DEBUG {self.app_color}{self.module}{Style.RESET_ALL} : {''.join(msg)}"
+            )
         else:
             self.logger.debug(
-                f"{Fore.CYAN}DEBUG {self.app_color}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
+                f"{Fore.CYAN}DEBUG {self.app_color}{self.module}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
             )
 
     def info(self, msg: str) -> None:
         """Passes msg to kv_logger."""
         msg = msg.split(":", maxsplit=1)
         if len(msg) == 1:
-            self.logger.info(f"{Fore.GREEN}INFO{Style.RESET_ALL} : {''.join(msg)}")
+            self.logger.info(
+                f"{Fore.GREEN}INFO {self.app_color}{self.module}{Style.RESET_ALL} : {''.join(msg)}"
+            )
         else:
             self.logger.info(
-                f"{Fore.GREEN}INFO {self.app_color}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
+                f"{Fore.GREEN}INFO {self.app_color}{self.module}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
             )
 
     def set_level(self, level: int):
