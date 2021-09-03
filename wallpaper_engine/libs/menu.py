@@ -66,10 +66,17 @@ class WallpaperEngine(App):
         menu_osc.server.bind(b"/pong", self.pong)
 
         async def check_connection():
+            count = 0
             menu_osc.send_message(b"/ping", [True])
             while not self.connection_ok:
-                menu_osc.config.reload()
-                menu_osc.send_message(b"/ping", [True], log=False)
+                if count < 10:
+                    menu_osc.config.reload()
+                    menu_osc.send_message(b"/ping", [True], log=False)
+                    count += 1
+                else:
+                    Logger.debug("Unable to connect to wallpaper backend exiting ...")
+                    exit(0)
+                await trio.sleep(1)
             Logger.debug("Connected to wallpaper")
 
         trio.run(check_connection)
