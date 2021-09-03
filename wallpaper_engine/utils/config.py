@@ -8,23 +8,19 @@ from kivy.config import ConfigParser
 from .logger import LoggerClass
 
 Logger = LoggerClass(__name__)
+Logger.module = "config"
 
 
 class Config:
-    config = ConfigParser()
-
     def __init__(self, local: bool = False, module: str = None):
+        self.config = ConfigParser()
         self.appname = "Wallpaper engine"
         self.module = module
         if local and module is not None:
             Logger.debug(f"local config -> {module}")
-            self.dir = Path(
-                appdirs.user_data_dir(
-                    appname=self.module, appauthor=self.appname, roaming=True
-                )
-            )
+            self.dir = Path(__file__).parents[1] / "data" / module
         else:
-            Logger.debug("config : global config")
+            Logger.debug("global config")
             self.dir = Path(
                 appdirs.user_data_dir(appname=self.appname, appauthor="", roaming=True)
             )
@@ -33,13 +29,13 @@ class Config:
         self.config_file_path.touch(exist_ok=True)
         self.config.read(self.config_file_path.as_posix())
         if not local:
-            Logger.debug(f"config:config file at {self.config_file_path}")
+            Logger.debug(f"config file at {self.config_file_path}")
             if len(self.config.sections()) == 0:
-                Logger.info("config:setting up logger")
+                Logger.info("setting up logger")
                 if not self.config.has_section("app") or self.config.get(
                     "app", "first_run", fallback=True
                 ):
-                    Logger.debug("config:Making New Config")
+                    Logger.debug("Making New Config")
                     # set sections
                     self.config.setdefaults(
                         "app",
@@ -58,7 +54,7 @@ class Config:
                         },
                     )
             else:
-                Logger.info("config:Using existing config")
+                Logger.info("Using existing config")
 
     def remove_file(self) -> None:
         """removes the config file from disk"""
@@ -67,3 +63,6 @@ class Config:
     def write(self) -> None:
         """saves file to disk"""
         self.config.write()
+
+    def reload(self) -> None:
+        self.config.read(self.config_file_path.as_posix())
