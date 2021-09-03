@@ -13,9 +13,7 @@ Logger = LoggerClass(__name__)
 
 async def launch_menu():
     command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
-    process = await trio.open_process(command)
-    if process.returncode is not None:
-        Logger.debug(str(App.get_running_app().get_application_name()))
+    await trio.open_process(command)
 
 
 if __name__ == "__main__":
@@ -34,7 +32,10 @@ if __name__ == "__main__":
 
         from .libs.kivy_manager import WallpaperEngine
 
-        WallpaperEngine().run()
+        app = WallpaperEngine()
+        app.run()
+        app.window_manager.reset_wallpaper()
+
     except KeyboardInterrupt:
         from kivy.app import App
 
