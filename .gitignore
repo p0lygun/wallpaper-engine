@@ -7,7 +7,7 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
-
+.idea/
 # Generated files
 .idea/**/contentModel.xml
 
@@ -87,7 +87,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -211,4 +210,4 @@ dmypy.json
 cython_debug/
 /test.py
 /tmp_run.bat
-/wallpaper_engine/libs/windows_inspector.py
+/wallpaper_engine/data/kivy_backend_config

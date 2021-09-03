@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "wallpaper-engine"
+version = "0.1.0"
+description = "wallpaper engine"
+authors = ["p0lygun <solankivibhakar82@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Kivy = "^2.0.0"
+colorama = "^0.4.4"
+oscpy = "^0.6.0"
+appdirs = "^1.4.4"
+pywin32 = "^301"
+trio = "^0.19.0"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.9.2"
+pre-commit = "^2.14.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
