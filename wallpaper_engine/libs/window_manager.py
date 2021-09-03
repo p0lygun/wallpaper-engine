@@ -55,6 +55,7 @@ class WindowManager:
         win32gui.EnumWindows(self.set_workerw, False)
         if self.hidden:
             win32gui.ShowWindow(self.WorkerW, 1)
+            self.hidden = False
         else:
             win32gui.ShowWindow(self.WorkerW, 0)
             self.hidden = True
