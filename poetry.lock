@@ -374,6 +374,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "stackprinter"
+version = "0.2.5"
+description = "Debug-friendly stack traces, with variable values and semantic highlighting"
+category = "dev"
+optional = false
+python-versions = ">=3.4"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -433,7 +441,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "704c343e3f909a85c69a40213ad7e86196c622caa53e96c6e8dfabeed97915bd"
+content-hash = "3ef2fc7ddc28d40b4f1985922b00e2531e5e2059e813060c300dbf39a5627ca0"
 
 [metadata.files]
 appdirs = [
@@ -694,6 +702,10 @@ sniffio = [
 sortedcontainers = [
     {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
+]
+stackprinter = [
+    {file = "stackprinter-0.2.5-py3-none-any.whl", hash = "sha256:e6770d1f932992caa37f1c734ca40429ee7358163ec7f262dcd3c8371b260006"},
+    {file = "stackprinter-0.2.5.tar.gz", hash = "sha256:e0197c54dafe7867020731c3dcab96a14d103c1e39130fa0b5159a2f0af427b6"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
