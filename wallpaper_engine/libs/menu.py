@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 try:
     from kivy.config import Config as KvConfig
 
@@ -8,9 +11,10 @@ except ImportError:
 
 from kivy.app import App
 from kivy.lang.builder import Builder
+from kivy.uix.settings import SettingsWithSidebar
 from kivy.core.window import Window
+import stackprinter
 import trio
-
 
 try:
     from wallpaper_engine.utils.logger import LoggerClass
@@ -24,6 +28,8 @@ except ImportError:
 from wallpaper_engine.utils.config import Config
 from wallpaper_engine.libs.osc import OscHighway
 from wallpaper_engine.utils.common import commands
+
+stackprinter.set_excepthook(style="darkbg2")
 
 kv = """
 StackLayout:
@@ -39,19 +45,58 @@ StackLayout:
         text: "Exit"
         size_hint : [.2,.1]
         on_release: app.exit()
-
+    Button:
+        text: "Show settings"
+        size_hint : [.2,.1]
+        on_release: app.open_settings()
 """
 
-menu_json = [{"type": "title", "title": "Wallpaper Engine"}]
+wallpaper_dir = Path(__file__).parents[1] / "wallpapers"
+valid_wallpapers = [
+    i.stem
+    for i in wallpaper_dir.glob("*.py")
+    if i.name not in ["wallpaper_base.py", "__init__.py"]
+]
+
+menu_json = json.dumps(
+    [
+        {"type": "title", "title": "App"},
+        {
+            "type": "numeric",
+            "title": "log level",
+            "key": "log_level",
+            "desc": "Set the Level of debug [0, 10, 20, 30, 40, 50, 60]",
+            "section": "app",
+        },
+        {
+            "type": "bool",
+            "title": "Debug",
+            "key": "debug",
+            "desc": "Turn off Debugging",
+            "section": "app",
+        },
+        {"type": "title", "title": "Wallpaper"},
+        {
+            "type": "options",
+            "title": "Active Wallpaper",
+            "options": valid_wallpapers,
+            "key": "active",
+            "desc": "Choose a wallpaper from the options",
+            "section": "wallpaper",
+        },
+    ]
+)
 
 menu_osc = OscHighway("menu")
 
 
-class WallpaperEngine(App):
+class WallpaperEngineMenu(App):
     def __init__(self):
-        super(WallpaperEngine, self).__init__()
+        super(WallpaperEngineMenu, self).__init__()
         self.connection_ok = False
         self.we_config = Config()
+        self.wallpaper_dir = wallpaper_dir
+        self.valid_wallpapers = valid_wallpapers
 
     def on_start(self):
         Logger.info("Starting Menu")
@@ -71,7 +116,7 @@ class WallpaperEngine(App):
             menu_osc.send_message(b"/ping", [True])
             while not self.connection_ok:
                 menu_osc.config.reload()
-                menu_osc.send_message(b"/ping", [True], log=True)
+                menu_osc.send_message(b"/ping", [True], log=False)
                 await trio.sleep(0.5)
             Logger.debug("Connected to wallpaper")
             Window.show()
@@ -81,8 +126,24 @@ class WallpaperEngine(App):
     def on_stop(self):
         Logger.debug("Closing.... Menu")
 
+    def on_config_change(self, config, section, key, value):
+        if section == "app":
+            if key == "log_level":
+                Logger.set_level(int(value))
+
     def build(self):
+        self.use_kivy_settings = (
+            True
+            if self.we_config.config.get("app", "kivy_settings") == "True"
+            else False
+        )
+        self.settings_cls = SettingsWithSidebar
         return Builder.load_string(kv)
+
+    def build_settings(self, settings):
+        settings.add_json_panel(
+            "Wallpaper engine", self.we_config.config, data=menu_json
+        )
 
     def pong(self, *values):
         if True in values:
@@ -102,4 +163,4 @@ class WallpaperEngine(App):
 
 
 if __name__ == "__main__":
-    WallpaperEngine().run()
+    WallpaperEngineMenu().run()
