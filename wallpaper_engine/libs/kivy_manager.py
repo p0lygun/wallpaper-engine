@@ -1,9 +1,10 @@
 import logging
-import random
+import importlib
 
 from kivy.app import App
-from kivy.uix.label import Label
 from kivy.clock import Clock
+from kivy.lang.builder import Builder
+from kivy.resources import resource_find
 
 from .osc import OscHighway
 from ..utils.config import Config
@@ -26,6 +27,9 @@ class WallpaperEngine(App):
         self.hwnd = None
         self.playing = True
         self.hidden = False
+        self.wallpaper = None
+        self.wallpaper_file_name = None
+        self.kv_file = resource_find("wallpaperengine.kv")
 
     def on_start(self):
         self.title = (
@@ -35,11 +39,6 @@ class WallpaperEngine(App):
     def on_stop(self, *args):
         Logger.debug("Stopping Wallpaper and exiting")
         wallpaper_osc.stop()
-
-    def build(self):
-        seed = random.random()
-        Logger.debug(f"seed {seed}")
-        return Label(text=f"{seed}")
 
     def run(self):
         Logger.debug("Starting Wallpaper Layer")
@@ -65,7 +64,32 @@ class WallpaperEngine(App):
         self.playing = False
 
     def change_wallpaper(self):
-        pass
+        self.we_config.reload()
+        wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
+        if self.wallpaper_file_name != wallpaper_file_name:
+            self.wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
+
+            # load  wallpaper kv before init
+            # sin_wave -> sinwave.kv
+            Builder.load_file(
+                resource_find(
+                    "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
+                )
+            )
+
+            try:
+                self.wallpaper = importlib.import_module(
+                    f".wallpapers.{wallpaper_file_name}", "wallpaper_engine"
+                ).Wallpaper()
+            except ImportError as e:
+                Logger.critical(f"{e.name} not found...")
+                raise
+            # remove prev wallpaper
+            self.root.clear_widgets()
+            # put the new one and start the animation
+            self.root.add_widget(self.wallpaper)
+            self.wallpaper.build()
+            self.wallpaper.animate()
 
     def receive(self, *values):
         if commands["EXIT"] in values:
