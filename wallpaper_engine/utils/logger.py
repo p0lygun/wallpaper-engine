@@ -29,7 +29,7 @@ class LoggerClass:
 
     def debug(self, msg: str) -> None:
         """Passes msg to kv_logger."""
-        msg = msg.split(":", maxsplit=1)
+        msg = str(msg).split(":", maxsplit=1)
         if len(msg) == 1:
             self.logger.debug(
                 f"{Fore.CYAN}DEBUG {self.app_color}{self.module}{Style.RESET_ALL} : {''.join(msg)}"
@@ -41,7 +41,7 @@ class LoggerClass:
 
     def info(self, msg: str) -> None:
         """Passes msg to kv_logger."""
-        msg = msg.split(":", maxsplit=1)
+        msg = str(msg).split(":", maxsplit=1)
         if len(msg) == 1:
             self.logger.info(
                 f"{Fore.GREEN}INFO {self.app_color}{self.module}{Style.RESET_ALL} : {''.join(msg)}"
@@ -49,6 +49,18 @@ class LoggerClass:
         else:
             self.logger.info(
                 f"{Fore.GREEN}INFO {self.app_color}{self.module}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
+            )
+
+    def critical(self, msg: str) -> None:
+        """Passes msg to kv_logger."""
+        msg = str(msg).split(":", maxsplit=1)
+        if len(msg) == 1:
+            self.logger.critical(
+                f"{Fore.RED}CRITICAL {self.app_color}{self.module}{Style.RESET_ALL} : {''.join(msg)}"
+            )
+        else:
+            self.logger.critical(
+                f"{Fore.RED}CRITICAL {self.app_color}{self.module}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
             )
 
     def set_level(self, level: int):
