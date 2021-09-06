@@ -30,7 +30,13 @@ if __name__ == "__main__":
         Config.set("graphics", "width", f"{win32api.GetSystemMetrics(0)}")
         Config.set("graphics", "height", f"{win32api.GetSystemMetrics(1)}")
 
+        from kivy.resources import resource_add_path
+
         from .libs.kivy_manager import WallpaperEngine
+        from .utils.common import project_dir
+
+        resource_add_path(str((project_dir / "libs" / "kv")))
+        resource_add_path(str((project_dir / "wallpapers" / "kv")))
 
         app = WallpaperEngine()
         app.run()
