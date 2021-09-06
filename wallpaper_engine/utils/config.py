@@ -45,6 +45,7 @@ class Config:
                             "debug": True,
                             "uuid": uuid4().hex,
                             "fps": 60,
+                            "kivy_settings": False,
                         },
                     )
                     self.config.setdefaults(
