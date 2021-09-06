@@ -1,0 +1,33 @@
+#:import get_random_color kivy.utils.get_random_color
+#:import uniform random.uniform
+#:import choice random.choice
+#:import Window kivy.core.window.Window
+
+<Wallpaper>:
+    size_hint: (1,1)
+    id: wallpaper_object
+    GridLayout:
+        size_hint : .9,.3
+        pos_hint : {'center_y': .5,'center_x':.5}
+        cols : root.number_of_rect
+        rows : 1
+        id : container
+
+
+<Rect>:
+    Widget:
+        size_hint: None, None
+        size : root.width_var , root.height_var
+        canvas:
+            Color:
+                rgba: (1,0,0,1)
+
+            PushMatrix
+            Scale:
+                y: root.offset
+                origin: self.center
+
+            Rectangle:
+                size : self.size
+                pos: self.pos
+            PopMatrix
