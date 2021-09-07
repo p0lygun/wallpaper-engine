@@ -1,0 +1,23 @@
+<Point>:
+    size_hint : None,None
+    width: self.point_size
+    height: self.point_size
+    pos: (self.pos_x, self.pos_y)
+    Widget:
+        id : point
+        size: self.size
+        pos_hint: {'center_x':0.5, 'center_y':0.5}
+        canvas:
+            Color:
+                rgba: root.color
+            Ellipse:
+                pos: self.pos
+                size:self.size
+                segments: 360
+
+
+<Wallpaper>:
+    size_hint : (1,1)
+    FloatLayout:
+        size_hint : (1,1)
+        id : container
