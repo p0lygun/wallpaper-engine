@@ -21,15 +21,13 @@ class Rect(AnchorLayout):
     width_var = NumericProperty(defaultvalue=1)
     offset = NumericProperty(defaultvalue=1)
     animation_going_on = BooleanProperty(defaultvalue=False)
+    color = ColorProperty()
 
 
 class Wallpaper(WallpaperBase):
-    number_of_rect = NumericProperty(defaultvalue=50)
+    number_of_rect = NumericProperty(defaultvalue=70)
     primary_color = ColorProperty(defaultvalue=get_color_from_hex("949494"))
     secondary_color = ColorProperty(defaultvalue=get_color_from_hex("3b3b3b"))
-    dh = NumericProperty(defaultvalue=0.01)
-    id = 0
-    angle = NumericProperty()
 
     def __init__(self):
         super(Wallpaper, self).__init__()
@@ -64,6 +62,7 @@ class Wallpaper(WallpaperBase):
         Logger.debug(str(self.app.root.children[0].height))
         for i in range(self.number_of_rect):
             test_rect = Rect()
+            test_rect.color = random.choice([self.primary_color, self.secondary_color])
             test_rect.width_var = 0.1 * self.container.width
 
             test_rect.height_var = self.container.height * random.uniform(1, 2)
