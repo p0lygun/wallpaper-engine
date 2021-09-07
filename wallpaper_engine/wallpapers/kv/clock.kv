@@ -1,0 +1,28 @@
+#:import time time.time
+#:import Clock kivy.clock.Clock
+<Wallpaper>:
+    size_hint: (1,1)
+    pos_hint: {'center_x':0.5, 'center_y':0.5}
+    Widget:
+        id : clock
+        size_hint: 1,1
+        pos:root.pos
+        canvas:
+            Color:
+                rgba: root.second_hand_color
+            Line:
+                circle: (root.center_x, root.center_y , (root.width * root.clock_width_factor) , 0, root.sec_angle, 360)
+                width: root.hand_width
+                cap: 'square'
+            Color:
+                rgba: root.minute_hand_color
+            Line:
+                circle: (root.center_x, root.center_y , (root.width * root.clock_width_factor) - root.spacing, 0, root.min_angle, 360)
+                width: root.hand_width
+                cap: 'square'
+            Color:
+                rgba: root.hour_hand_color
+            Line:
+                circle: (root.center_x, root.center_y , (root.width * root.clock_width_factor) - 2 * root.spacing, 0, root.hour_angle, 360)
+                width: root.hand_width
+                cap: 'square'
