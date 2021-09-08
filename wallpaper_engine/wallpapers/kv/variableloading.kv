@@ -1,0 +1,24 @@
+<Arm>:
+    pos_hint: {'center_x':0.5, "center_y":0.5}
+
+    canvas:
+        Color
+            rgba:self.arm_color
+        Line:
+            circle: (root.center_x, root.center_y, root.radius, root.start_angle, root.start_angle+root.arm_length)
+            width: root.arm_width
+            cap: 'square'
+
+<Wallpaper>:
+    pos_hint: {'center_x':0.5, "center_y":0.5}
+    size_hint:1,1
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size:self.size
+            pos:self.pos
+    FloatLayout:
+        pos_hint: {'center_x':0.5, "center_y":0.5}
+        size_hint:1,1
+        id: container
