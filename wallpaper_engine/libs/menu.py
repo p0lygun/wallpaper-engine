@@ -143,6 +143,7 @@ class WallpaperEngineMenu(App):
             else False
         )
         self.settings_cls = SettingsWithSidebar
+
         return Builder.load_string(kv)
 
     def build_settings(self, settings):
@@ -150,6 +151,11 @@ class WallpaperEngineMenu(App):
             "Wallpaper engine", self.we_config.config, data=menu_json
         )
 
+    def close_settings(self, settings=None):
+        Logger.debug("Closing Settings")
+        super(WallpaperEngineMenu, self).close_settings(settings)
+
+    # osc
     def pong(self, *values):
         if True in values:
             self.connection_ok = True
