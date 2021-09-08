@@ -20,3 +20,6 @@ class WallpaperBase(FloatLayout):
 
     def pause(self):
         pass
+
+    def load_config(self):
+        pass
