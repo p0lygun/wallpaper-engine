@@ -79,6 +79,13 @@ menu_json = json.dumps(
             "desc": "Turn off Debugging",
             "section": "app",
         },
+        {
+            "type": "bool",
+            "title": "kivy settings",
+            "key": "kivy_settings",
+            "desc": "Show kivy settings",
+            "section": "app",
+        },
         {"type": "title", "title": "Wallpaper"},
         {
             "type": "options",
@@ -138,9 +145,7 @@ class WallpaperEngineMenu(App):
 
     def build(self):
         self.use_kivy_settings = (
-            True
-            if self.we_config.config.get("app", "kivy_settings") == "True"
-            else False
+            True if self.we_config.config.getint("app", "kivy_settings") else False
         )
         self.settings_cls = SettingsWithSidebar
 
