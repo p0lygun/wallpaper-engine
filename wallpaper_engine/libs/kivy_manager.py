@@ -67,42 +67,40 @@ class WallpaperEngine(App):
         self.wallpaper.pause()
         self.playing = False
 
-    def change_wallpaper(self):
+    def change_wallpaper(self):  # is also used to reload wallpaper
         self.we_config.reload()
-        wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
-        if self.wallpaper_file_name != wallpaper_file_name:
-            self.wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
-
-            # remove prev wallpaper
-            self.root.clear_widgets()
-            if self.wallpaper is not None:
-                for child in self.root.walk():
-                    child.canvas.before.clear()
-                    child.canvas.clear()
-                    child.canvas.after.clear()
-                Builder.unload_file(resource_find(self.kv_file_name))
-                Builder.unbind_widget(self.wallpaper.uid)
-                del self.wallpaper
-                del self.wallpaper_module
-
-            # load  wallpaper kv before init
-            # sin_wave -> sinwave.kv
-            self.kv_file_name = (
-                "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
+        self.wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
+        self.remove_wallpaper()
+        # load  wallpaper kv before init
+        # sin_wave -> sinwave.kv
+        self.kv_file_name = "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
+        Builder.load_file(resource_find(self.kv_file_name))
+        try:
+            self.wallpaper_module = importlib.import_module(
+                f".wallpapers.{self.wallpaper_file_name}", "wallpaper_engine"
             )
-            Builder.load_file(resource_find(self.kv_file_name))
-            try:
-                self.wallpaper_module = importlib.import_module(
-                    f".wallpapers.{wallpaper_file_name}", "wallpaper_engine"
-                )
-            except ImportError as e:
-                Logger.critical(f"{e.name} not found...")
-                raise
-            # put the new one and start the animation
-            self.wallpaper = self.wallpaper_module.Wallpaper()
-            self.root.add_widget(self.wallpaper)
-            self.wallpaper.build()
-            self.wallpaper.animate()
+        except ImportError as e:
+            Logger.critical(f"{e.name} not found...")
+            raise
+        # put the new one and start the animation
+        self.wallpaper = self.wallpaper_module.Wallpaper()
+        self.root.add_widget(self.wallpaper)
+        self.wallpaper.build()
+        self.wallpaper.animate()
+
+    def remove_wallpaper(self):
+        if self.wallpaper is not None:
+            for child in self.root.walk():
+                child.canvas.before.clear()
+                child.canvas.clear()
+                child.canvas.after.clear()
+            Builder.unload_file(resource_find(self.kv_file_name))
+            Builder.unbind_widget(self.wallpaper.uid)
+            importlib.invalidate_caches()
+            del self.wallpaper
+            del self.wallpaper_module
+
+        self.root.clear_widgets()
 
     def receive(self, *values):
         if commands["EXIT"] in values:
