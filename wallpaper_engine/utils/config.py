@@ -7,7 +7,7 @@ import appdirs
 from kivy.config import ConfigParser
 
 from .logger import LoggerClass
-from .common import project_dir
+from .common import project_dir, valid_wallpapers
 
 Logger = LoggerClass(__name__)
 Logger.module = "config"
@@ -19,7 +19,10 @@ class Config:
         self.appname = "Wallpaper engine"
         self.module = module
         if local and module is not None:
-            self.dir = Path(__file__).parents[1] / "data" / module
+            if module in valid_wallpapers:
+                self.dir = project_dir / "wallpapers" / "configs" / module
+            else:
+                self.dir = project_dir / "data" / module
         else:
             Logger.debug("using global config")
             self.dir = Path(
