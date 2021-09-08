@@ -76,9 +76,14 @@ class WallpaperEngine(App):
             # remove prev wallpaper
             self.root.clear_widgets()
             if self.wallpaper is not None:
+                for child in self.root.walk():
+                    child.canvas.before.clear()
+                    child.canvas.clear()
+                    child.canvas.after.clear()
                 Builder.unload_file(resource_find(self.kv_file_name))
                 Builder.unbind_widget(self.wallpaper.uid)
                 del self.wallpaper
+                del self.wallpaper_module
 
             # load  wallpaper kv before init
             # sin_wave -> sinwave.kv
