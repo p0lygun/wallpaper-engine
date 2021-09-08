@@ -17,3 +17,6 @@ steps
 To change your wallpaper go to `%appdata%\Wallpaper engine` and in `config.ini` change the active option in wallpaper section.  
 ( must run the project once to populate the config file )  
 Valid name for a wallpaper is the same name as the name of the script in wallpaper directory
+
+***
+thx to [@beesandbombs](https://twitter.com/beesandbombs/) for a lot of ideas
