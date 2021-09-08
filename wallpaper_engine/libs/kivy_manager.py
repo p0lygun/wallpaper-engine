@@ -28,7 +28,9 @@ class WallpaperEngine(App):
         self.playing = True
         self.hidden = False
         self.wallpaper = None
+        self.wallpaper_module = None
         self.wallpaper_file_name = None
+        self.kv_file_name = None
         self.kv_file = resource_find("wallpaperengine.kv")
 
     def on_start(self):
@@ -58,9 +60,11 @@ class WallpaperEngine(App):
         self.window_manager.toggle_workerw_visibility()
 
     def play(self):
+        self.wallpaper.play()
         self.playing = True
 
     def pause(self):
+        self.wallpaper.pause()
         self.playing = False
 
     def change_wallpaper(self):
@@ -69,24 +73,28 @@ class WallpaperEngine(App):
         if self.wallpaper_file_name != wallpaper_file_name:
             self.wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
 
+            # remove prev wallpaper
+            self.root.clear_widgets()
+            if self.wallpaper is not None:
+                Builder.unload_file(resource_find(self.kv_file_name))
+                Builder.unbind_widget(self.wallpaper.uid)
+                del self.wallpaper
+
             # load  wallpaper kv before init
             # sin_wave -> sinwave.kv
-            Builder.load_file(
-                resource_find(
-                    "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
-                )
+            self.kv_file_name = (
+                "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
             )
-
+            Builder.load_file(resource_find(self.kv_file_name))
             try:
-                self.wallpaper = importlib.import_module(
+                self.wallpaper_module = importlib.import_module(
                     f".wallpapers.{wallpaper_file_name}", "wallpaper_engine"
-                ).Wallpaper()
+                )
             except ImportError as e:
                 Logger.critical(f"{e.name} not found...")
                 raise
-            # remove prev wallpaper
-            self.root.clear_widgets()
             # put the new one and start the animation
+            self.wallpaper = self.wallpaper_module.Wallpaper()
             self.root.add_widget(self.wallpaper)
             self.wallpaper.build()
             self.wallpaper.animate()
