@@ -18,6 +18,12 @@
 
 <Wallpaper>:
     size_hint : (1,1)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: (0,0)
+            size: self.size
     FloatLayout:
         size_hint : (1,1)
         id : container
