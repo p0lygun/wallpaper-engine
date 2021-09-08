@@ -1,4 +1,5 @@
 import logging
+import random
 from uuid import uuid4
 from pathlib import Path
 
@@ -6,6 +7,7 @@ import appdirs
 from kivy.config import ConfigParser
 
 from .logger import LoggerClass
+from .common import project_dir
 
 Logger = LoggerClass(__name__)
 Logger.module = "config"
@@ -48,11 +50,16 @@ class Config:
                             "kivy_settings": False,
                         },
                     )
+                    random_wallpaper = random.choice(
+                        [
+                            path.stem
+                            for path in (project_dir / "wallpapers").glob("*py")
+                            if path.stem not in ["wallpaper_base", "__init__"]
+                        ]
+                    )
                     self.config.setdefaults(
                         "wallpaper",
-                        {
-                            "active": "sin-wave"  # todo: set one randomly by choosing from wallpaper directory
-                        },
+                        {"active": f"{random_wallpaper}"},
                     )
             else:
                 Logger.info("Using existing config")
