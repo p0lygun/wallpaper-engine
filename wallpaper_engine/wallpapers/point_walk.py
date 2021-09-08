@@ -44,6 +44,8 @@ class Wallpaper(WallpaperBase):
     def __init__(self):
         super(Wallpaper, self).__init__()
         self.points = list()
+        self.animation_loop_clock = None
+        self.playing = False
 
     def animate(self):
         Lines = InstructionGroup()
@@ -104,11 +106,11 @@ class Wallpaper(WallpaperBase):
 
             self.time_init = tf
 
-        Clock.schedule_interval(animation_loop, 1 / 60)
+        self.animation_loop_clock = Clock.schedule_interval(animation_loop, 1 / 60)
+        self.playing = True
 
     def build(self):
         self.container = self.app.root.children[0].ids.container
-        Logger.debug(self.container)
         for i in range(self.number_of_points):
             point = Point()
             point.pos_x = random.randint(0, Window.width)
@@ -129,3 +131,14 @@ class Wallpaper(WallpaperBase):
 
         for point in self.points:
             self.container.add_widget(point)
+
+    def pause(self):
+        if self.playing:
+            self.animation_loop_clock.cancel()
+            self.playing = False
+
+    def play(self):
+        if not self.playing:
+            self.time_init = time.time()
+            self.animation_loop_clock()
+            self.playing = True
