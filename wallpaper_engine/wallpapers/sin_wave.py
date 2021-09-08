@@ -4,6 +4,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.animation import Animation
 from kivy.properties import NumericProperty
+from kivy.properties import StringProperty
 from kivy.properties import ColorProperty
 from kivy.properties import BooleanProperty
 
@@ -28,16 +29,13 @@ class Wallpaper(WallpaperBase):
     number_of_rect = NumericProperty(defaultvalue=70)
     primary_color = ColorProperty(defaultvalue=get_color_from_hex("949494"))
     secondary_color = ColorProperty(defaultvalue=get_color_from_hex("3b3b3b"))
+    transition = StringProperty("in_out_circ")
 
     def __init__(self):
         super(Wallpaper, self).__init__()
-        Logger.debug("In Wallpaper Class")
         self.duration = 1
         self.app = App.get_running_app()
         self.container = None
-        self.transition = "in_out_circ"
-
-        Logger.debug(f"app.root.ids ->  {self.app.root.ids}")
 
     def animate(self):
         self.app = App.get_running_app()
@@ -59,7 +57,6 @@ class Wallpaper(WallpaperBase):
         Logger.debug("Building wallpaper")
         self.app = App.get_running_app()
         self.container = self.app.root.children[0].ids.container
-        Logger.debug(str(self.app.root.children[0].height))
         for i in range(self.number_of_rect):
             test_rect = Rect()
             test_rect.color = random.choice([self.primary_color, self.secondary_color])
