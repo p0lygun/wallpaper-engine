@@ -1,5 +1,5 @@
-import json
-from pathlib import Path
+import importlib
+import sys
 
 try:
     from kivy.config import Config as KvConfig
@@ -22,19 +22,24 @@ try:
     LoggerClass.prefix = "WE-MENU"
     Logger = LoggerClass(__name__)
     Logger.module = "Menu"
+    Logger.debug(f"python exe at : {sys.executable}")
 except ImportError:
     pass
-
 from wallpaper_engine.utils.config import Config
 from wallpaper_engine.libs.osc import OscHighway
-from wallpaper_engine.utils.common import commands
+from wallpaper_engine.utils.common import (
+    commands,
+    valid_wallpapers,
+    wallpaper_dir,
+    build_settings_json,
+)
 
 stackprinter.set_excepthook(style="darkbg2")
 
 kv = """
 StackLayout:
     Button:
-        text: "change wallpaper"
+        text: "change / reload wallpaper"
         size_hint : [.2,.1]
         on_release: app.change_wallpaper()
     Button:
@@ -55,48 +60,39 @@ StackLayout:
         on_release: app.exit()
 """
 
-wallpaper_dir = Path(__file__).parents[1] / "wallpapers"
-valid_wallpapers = [
-    i.stem
-    for i in wallpaper_dir.glob("*.py")
-    if i.name not in ["wallpaper_base.py", "__init__.py"]
+menu_json = [
+    {"type": "title", "title": "App"},
+    {
+        "type": "numeric",
+        "title": "log level",
+        "key": "log_level",
+        "desc": "Set the Level of debug [0, 10, 20, 30, 40, 50, 60]",
+        "section": "app",
+    },
+    {
+        "type": "bool",
+        "title": "Debug",
+        "key": "debug",
+        "desc": "Turn off Debugging",
+        "section": "app",
+    },
+    {
+        "type": "bool",
+        "title": "kivy settings",
+        "key": "kivy_settings",
+        "desc": "Show kivy settings",
+        "section": "app",
+    },
+    {"type": "title", "title": "Wallpaper"},
+    {
+        "type": "options",
+        "title": "Active Wallpaper",
+        "options": valid_wallpapers,
+        "key": "active",
+        "desc": "Choose a wallpaper from the options",
+        "section": "wallpaper",
+    },
 ]
-
-menu_json = json.dumps(
-    [
-        {"type": "title", "title": "App"},
-        {
-            "type": "numeric",
-            "title": "log level",
-            "key": "log_level",
-            "desc": "Set the Level of debug [0, 10, 20, 30, 40, 50, 60]",
-            "section": "app",
-        },
-        {
-            "type": "bool",
-            "title": "Debug",
-            "key": "debug",
-            "desc": "Turn off Debugging",
-            "section": "app",
-        },
-        {
-            "type": "bool",
-            "title": "kivy settings",
-            "key": "kivy_settings",
-            "desc": "Show kivy settings",
-            "section": "app",
-        },
-        {"type": "title", "title": "Wallpaper"},
-        {
-            "type": "options",
-            "title": "Active Wallpaper",
-            "options": valid_wallpapers,
-            "key": "active",
-            "desc": "Choose a wallpaper from the options",
-            "section": "wallpaper",
-        },
-    ]
-)
 
 menu_osc = OscHighway("menu")
 
@@ -108,6 +104,10 @@ class WallpaperEngineMenu(App):
         self.we_config = Config()
         self.wallpaper_dir = wallpaper_dir
         self.valid_wallpapers = valid_wallpapers
+        self.wallpaper_name = self.we_config.config.get("wallpaper", "active")
+        self.wallpaper_changed = False
+        self.wallpaper_config = None
+
         self.playing = True
 
     def on_start(self):
@@ -139,9 +139,20 @@ class WallpaperEngineMenu(App):
         Logger.debug("Closing.... Menu")
 
     def on_config_change(self, config, section, key, value):
+        Logger.debug(f"on_config_changed {(config, section, key, value)}")
         if section == "app":
             if key == "log_level":
                 Logger.set_level(int(value))
+
+        if config == self.we_config.config:
+            if section == "wallpaper":
+                if key == "active":
+                    Logger.debug("Wallpaper Changed")
+                    self.wallpaper_name = value
+                    self.wallpaper_changed = True
+
+        if config == self.wallpaper_config.config:
+            self.change_wallpaper()
 
     def build(self):
         self.use_kivy_settings = (
@@ -152,13 +163,29 @@ class WallpaperEngineMenu(App):
         return Builder.load_string(kv)
 
     def build_settings(self, settings):
+        wallpaper_module = importlib.import_module(
+            f".wallpapers.{self.wallpaper_name}", "wallpaper_engine"
+        )
+        wallpaper_module.Wallpaper()
+        wallpaper_settings_json = wallpaper_module.settings_json
+        self.wallpaper_config = Config(local=True, module=self.wallpaper_name)
         settings.add_json_panel(
-            "Wallpaper engine", self.we_config.config, data=menu_json
+            "Wallpaper engine",
+            self.we_config.config,
+            data=build_settings_json(menu_json),
+        )
+        settings.add_json_panel(
+            "Wallpaper settings",
+            self.wallpaper_config.config,
+            data=build_settings_json(wallpaper_settings_json),
         )
 
     def close_settings(self, settings=None):
         Logger.debug("Closing Settings")
         super(WallpaperEngineMenu, self).close_settings(settings)
+        if self.wallpaper_changed:
+            super(WallpaperEngineMenu, self).destroy_settings()
+            importlib.invalidate_caches()
 
     # osc
     def pong(self, *values):
