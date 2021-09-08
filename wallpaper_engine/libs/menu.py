@@ -42,13 +42,17 @@ StackLayout:
         size_hint : [.2,.1]
         on_release: app.toggle_window_visibility()
     Button:
-        text: "Exit"
+        text: "Play / Pause"
         size_hint : [.2,.1]
-        on_release: app.exit()
+        on_release: app.toggle_state()
     Button:
         text: "Show settings"
         size_hint : [.2,.1]
         on_release: app.open_settings()
+    Button:
+        text: "Exit"
+        size_hint : [.2,.1]
+        on_release: app.exit()
 """
 
 wallpaper_dir = Path(__file__).parents[1] / "wallpapers"
@@ -97,6 +101,7 @@ class WallpaperEngineMenu(App):
         self.we_config = Config()
         self.wallpaper_dir = wallpaper_dir
         self.valid_wallpapers = valid_wallpapers
+        self.playing = True
 
     def on_start(self):
         Logger.info("Starting Menu")
@@ -152,6 +157,14 @@ class WallpaperEngineMenu(App):
     def exit(self, *args):
         menu_osc.send_message(b"/receive", commands["EXIT"])
         self.stop()
+
+    def toggle_state(self):
+        if self.playing:
+            menu_osc.send_message(b"/receive", commands["PAUSE"])
+            self.playing = False
+        else:
+            menu_osc.send_message(b"/receive", commands["PLAY"])
+            self.playing = True
 
     @staticmethod
     def change_wallpaper():
