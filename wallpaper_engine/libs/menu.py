@@ -107,7 +107,7 @@ class WallpaperEngineMenu(App):
         Logger.info("Starting Menu")
         self.we_config.config.set("app", "first_run", False)
         log_level = self.we_config.config.get("app", "log_level")
-        if log_level.isnumeric():
+        if type(log_level) == str and log_level.isnumeric():
             log_level = int(log_level)
             if log_level in [0, 10, 20, 30, 40, 50]:
                 Logger.set_level(log_level)

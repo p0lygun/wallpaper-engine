@@ -19,7 +19,6 @@ async def launch_menu():
 if __name__ == "__main__":
     try:
 
-        Logger.set_level(10)
         init()
         trio.run(launch_menu)
         Config.read((Path(__file__).parent / "data" / "kivy_backend_config").as_posix())

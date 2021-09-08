@@ -19,10 +19,9 @@ class Config:
         self.appname = "Wallpaper engine"
         self.module = module
         if local and module is not None:
-            Logger.debug(f"local config -> {module}")
             self.dir = Path(__file__).parents[1] / "data" / module
         else:
-            Logger.debug("global config")
+            Logger.debug("using global config")
             self.dir = Path(
                 appdirs.user_data_dir(appname=self.appname, appauthor="", roaming=True)
             )
@@ -33,7 +32,6 @@ class Config:
         if not local:
             Logger.debug(f"config file at {self.config_file_path}")
             if len(self.config.sections()) == 0:
-                Logger.info("setting up logger")
                 if not self.config.has_section("app") or self.config.get(
                     "app", "first_run", fallback=True
                 ):
@@ -63,6 +61,7 @@ class Config:
                     )
             else:
                 Logger.info("Using existing config")
+                Logger.set_level(self.config.get("app", "log_level"))
 
     def remove_file(self) -> None:
         """removes the config file from disk"""

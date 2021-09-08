@@ -63,6 +63,8 @@ class LoggerClass:
                 f"{Fore.RED}CRITICAL {self.app_color}{self.module}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
             )
 
-    def set_level(self, level: int):
+    def set_level(self, level: [int, str]):
         """set level for logger."""
+        if type(level) == str and level.isnumeric():
+            level = int(level)
         self.logger.setLevel(level)
