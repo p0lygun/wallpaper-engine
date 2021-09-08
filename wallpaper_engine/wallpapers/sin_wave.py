@@ -1,3 +1,4 @@
+import pathlib
 import random
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.app import App
@@ -7,14 +8,51 @@ from kivy.properties import NumericProperty
 from kivy.properties import StringProperty
 from kivy.properties import ColorProperty
 from kivy.properties import BooleanProperty
-
+from kivy.animation import AnimationTransition
 from kivy.utils import get_color_from_hex
 
 from wallpaper_engine.utils.logger import LoggerClass
+from wallpaper_engine.utils.config import Config
 from .wallpaper_base import WallpaperBase
 
 Logger = LoggerClass(__name__)
 Logger.module = "Wallpaper_Sin_wave"
+settings_json = [
+    {"type": "title", "title": "Sin wave wallpaper Settings"},
+    {
+        "type": "numeric",
+        "title": "Number of rectangles",
+        "section": "wallpaper",
+        "key": "number_of_rect",
+        "is_int": True,
+    },
+    {
+        "type": "string",
+        "title": "Primary Color",
+        "desc": "color in hex",
+        "section": "wallpaper",
+        "key": "primary_color",
+    },
+    {
+        "type": "string",
+        "title": "Primary Color",
+        "desc": "color in hex",
+        "section": "wallpaper",
+        "key": "secondary_color",
+    },
+    {
+        "type": "options",
+        "title": "Transition",
+        "options": [
+            key
+            for key, values in AnimationTransition.__dict__.items()
+            if type(values) == staticmethod and key[0] != "_"
+        ],
+        "desc": "Which Transition to use during animation",
+        "section": "wallpaper",
+        "key": "transition",
+    },
+]
 
 
 class Rect(AnchorLayout):
@@ -36,6 +74,8 @@ class Wallpaper(WallpaperBase):
         self.duration = 1
         self.app = App.get_running_app()
         self.container = None
+        self.config = Config(local=True, module=pathlib.Path(__file__).stem)
+        self.load_config(settings_json)
 
     def animate(self):
         self.app = App.get_running_app()
@@ -50,7 +90,9 @@ class Wallpaper(WallpaperBase):
                 )
                 anim.start(r)
 
-        Clock.schedule_interval(animation_loop, self.duration)
+        self.animation_loop_clock = Clock.schedule_interval(
+            animation_loop, self.duration
+        )
 
     def build(self):
 
@@ -64,3 +106,13 @@ class Wallpaper(WallpaperBase):
 
             test_rect.height_var = self.container.height * random.uniform(1, 2)
             self.container.add_widget(test_rect)
+
+    def pause(self):
+        if self.playing:
+            self.animation_loop_clock.cancel()
+            self.playing = False
+
+    def play(self):
+        if not self.playing:
+            self.animation_loop_clock()
+            self.playing = True

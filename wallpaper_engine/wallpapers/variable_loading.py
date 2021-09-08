@@ -1,4 +1,3 @@
-import json
 import pathlib
 import random
 
@@ -17,68 +16,66 @@ from wallpaper_engine.utils.config import Config
 Logger = LoggerClass(__name__)
 Logger.module = "variable_loading"
 
-settings_json = json.dumps(
-    [
-        {"type": "title", "title": "Variable Loading wallpaper Settings"},
-        {
-            "type": "numeric",
-            "title": "Angular Velocity",
-            "desc": "velocity at which the outermost arm will move (angle/second)",
-            "section": "wallpaper",
-            "key": "angular_velocity",
-        },
-        {
-            "type": "numeric",
-            "title": "Start Angle",
-            "desc": "Angle at which the lagging part of the arc should be",
-            "section": "wallpaper",
-            "key": "start_angle",
-        },
-        {
-            "type": "numeric",
-            "title": "Radius",
-            "desc": "Radius of the inner-most arm",
-            "section": "wallpaper",
-            "key": "radius",
-        },
-        {
-            "type": "string",
-            "title": "Background Color",
-            "desc": "Background color in hex",
-            "section": "wallpaper",
-            "key": "background_color",
-        },
-        {
-            "type": "string",
-            "title": "Arm Color",
-            "desc": "Color of the arm color in hex",
-            "section": "wallpaper",
-            "key": "arm_color",
-        },
-        {
-            "type": "numeric",
-            "title": "Arm length",
-            "desc": "length of the arm color in degrees",
-            "section": "wallpaper",
-            "key": "arm_length",
-        },
-        {
-            "type": "numeric",
-            "title": "Arm width",
-            "desc": "width of the arm color in pixels",
-            "section": "wallpaper",
-            "key": "arm_width",
-        },
-        {
-            "type": "numeric",
-            "title": "Number of arms",
-            "desc": "Number of arms [min 5]",
-            "section": "wallpaper",
-            "key": "number_of_arms",
-            "is_int": True,
-        },
-    ]
-)
+settings_json = [
+    {"type": "title", "title": "Variable Loading wallpaper Settings"},
+    {
+        "type": "numeric",
+        "title": "Angular Velocity",
+        "desc": "velocity at which the outermost arm will move (angle/second)",
+        "section": "wallpaper",
+        "key": "angular_velocity",
+    },
+    {
+        "type": "numeric",
+        "title": "Start Angle",
+        "desc": "Angle at which the lagging part of the arc should be",
+        "section": "wallpaper",
+        "key": "start_angle",
+    },
+    {
+        "type": "numeric",
+        "title": "Radius",
+        "desc": "Radius of the inner-most arm",
+        "section": "wallpaper",
+        "key": "radius",
+    },
+    {
+        "type": "string",
+        "title": "Background Color",
+        "desc": "Background color in hex",
+        "section": "wallpaper",
+        "key": "background_color",
+    },
+    {
+        "type": "string",
+        "title": "Arm Color",
+        "desc": "Color of the arm color in hex",
+        "section": "wallpaper",
+        "key": "arm_color",
+    },
+    {
+        "type": "numeric",
+        "title": "Arm length",
+        "desc": "length of the arm color in degrees",
+        "section": "wallpaper",
+        "key": "arm_length",
+    },
+    {
+        "type": "numeric",
+        "title": "Arm width",
+        "desc": "width of the arm color in pixels",
+        "section": "wallpaper",
+        "key": "arm_width",
+    },
+    {
+        "type": "numeric",
+        "title": "Number of arms",
+        "desc": "Number of arms [min 5]",
+        "section": "wallpaper",
+        "key": "number_of_arms",
+        "is_int": True,
+    },
+]
 
 
 class Arm(Widget):

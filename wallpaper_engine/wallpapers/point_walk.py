@@ -1,7 +1,6 @@
 import pathlib
 import random
 import time
-import json
 from math import dist
 
 from kivy.core.window import Window
@@ -24,65 +23,71 @@ Logger.module = "point_walk"
 
 __all__ = ["Wallpaper"]
 
-settings_json = json.dumps(
-    [
-        {"type": "title", "title": "Point Walk Wallpaper Settings"},
-        {
-            "type": "string",
-            "title": "Color of the points",
-            "desc": "Set the color of the points. Must be a hex value",
-            "section": "wallpaper",
-            "key": "primary_color",
-        },
-        {
-            "type": "string",
-            "title": "Color of the lines",
-            "desc": "Set the color of the lines. Must be a hex value",
-            "section": "wallpaper",
-            "key": "secondary_color",
-        },
-        {
-            "type": "string",
-            "title": "Color of the spotlight point",
-            "desc": "Set the color of the point. Must be a hex value",
-            "section": "wallpaper",
-            "key": "spotlight_color",
-        },
-        {
-            "type": "numeric",
-            "title": "Number of points",
-            "desc": "50-150 for best performance and effect",
-            "section": "wallpaper",
-            "key": "number_of_points",
-        },
-        {
-            "type": "numeric",
-            "title": "Max velocity of points",
-            "section": "wallpaper",
-            "key": "velocity",
-        },
-        {
-            "type": "numeric",
-            "title": "Line Length",
-            "desc": "Max distance between two line for which the line should be drawn",
-            "section": "wallpaper",
-            "key": "line_length",
-        },
-        {
-            "type": "numeric",
-            "title": "Line Width",
-            "desc": "Width of the line",
-            "section": "wallpaper",
-            "key": "line_width",
-        },
-        {
-            "type": "numeric",
-            "title": "Point Size",
-            "section": "wallpaper",
-            "key": "point_size",
-        },
-    ]
-)
+settings_json = [
+    {"type": "title", "title": "Point Walk Wallpaper Settings"},
+    {
+        "type": "string",
+        "title": "Color of the points",
+        "desc": "Set the color of the points. Must be a hex value",
+        "section": "wallpaper",
+        "key": "primary_color",
+    },
+    {
+        "type": "string",
+        "title": "Color of the lines",
+        "desc": "Set the color of the lines. Must be a hex value",
+        "section": "wallpaper",
+        "key": "secondary_color",
+    },
+    {
+        "type": "string",
+        "title": "Color of the spotlight point",
+        "desc": "Set the color of the point. Must be a hex value",
+        "section": "wallpaper",
+        "key": "spotlight_color",
+    },
+    {
+        "type": "string",
+        "title": "Background color",
+        "desc": "Must be a hex value",
+        "section": "wallpaper",
+        "key": "background_color",
+    },
+    {
+        "type": "numeric",
+        "title": "Number of points",
+        "desc": "50-150 for best performance and effect",
+        "section": "wallpaper",
+        "key": "number_of_points",
+        "is_int": "True",
+    },
+    {
+        "type": "numeric",
+        "title": "Max velocity of points",
+        "section": "wallpaper",
+        "key": "velocity",
+    },
+    {
+        "type": "numeric",
+        "title": "Line Length",
+        "desc": "Max distance between two line for which the line should be drawn",
+        "section": "wallpaper",
+        "key": "line_length",
+    },
+    {
+        "type": "numeric",
+        "title": "Line Width",
+        "desc": "Width of the line",
+        "section": "wallpaper",
+        "key": "line_width",
+    },
+    {
+        "type": "numeric",
+        "title": "Point Size",
+        "section": "wallpaper",
+        "key": "point_size",
+    },
+]
 
 
 class Point(FloatLayout):
@@ -130,7 +135,7 @@ class Wallpaper(WallpaperBase):
         self.points = list()
         self.animation_loop_clock = None
         self.playing = False
-        self.load_config()
+        self.load_config(settings_json)
 
     def animate(self):
         Lines = InstructionGroup()
@@ -227,42 +232,3 @@ class Wallpaper(WallpaperBase):
             self.time_init = time.time()
             self.animation_loop_clock()
             self.playing = True
-
-    def load_config(self):
-        self.config.config.setdefaults(
-            "wallpaper",
-            {
-                "primary_color": "949494",
-                "secondary_color": "3b3b3b",
-                "spotlight_color": "ff0000",
-                "number_of_points": 100,
-                "velocity": 60,
-                "line_length": 150,
-                "line_width": 1.5,
-                "point_size": 7,
-            },
-        )
-        self.config.write()
-        try:
-
-            self.primary_color = get_color_from_hex(
-                self.config.config.get("wallpaper", "primary_color")
-            )
-            self.secondary_color = get_color_from_hex(
-                self.config.config.get("wallpaper", "secondary_color")
-            )
-            self.spotlight_color = get_color_from_hex(
-                self.config.config.get("wallpaper", "spotlight_color")
-            )
-            self.number_of_points = self.config.config.getint(
-                "wallpaper", "number_of_points"
-            )
-
-            # in pixels
-            self.velocity = self.config.config.getint("wallpaper", "velocity")
-            self.line_length = self.config.config.getfloat("wallpaper", "line_length")
-            self.line_width = self.config.config.getfloat("wallpaper", "line_width")
-            self.point_size = self.config.config.getint("wallpaper", "point_size")
-
-        except KeyError:
-            Logger.critical("Error setting config falling back to defaults")

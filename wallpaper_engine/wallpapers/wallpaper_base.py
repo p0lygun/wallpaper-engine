@@ -1,4 +1,3 @@
-import json
 from kivy.uix.floatlayout import FloatLayout
 from kivy.utils import get_color_from_hex, get_hex_from_color
 from kivy.app import App
@@ -10,6 +9,7 @@ class WallpaperBase(FloatLayout):
         self.app = App.get_running_app()
         self.container = None
         self.animation_loop_clock = None
+        self.animation = None
         self.playing = False
 
     def build(self):
@@ -24,8 +24,8 @@ class WallpaperBase(FloatLayout):
     def pause(self):
         pass
 
-    def load_config(self, json_dumps):
-        s_json = json.loads(json_dumps)
+    def load_config(self, list_json):
+        s_json = list_json
         # set defaults
         if not self.config.config.has_section("wallpaper"):
             self.config.config.add_section("wallpaper")
@@ -58,7 +58,7 @@ class WallpaperBase(FloatLayout):
                     )
                 else:
                     if item["type"] == "numeric":
-                        if item.get("is_int"):
+                        if item.get("is_int") == "True":
                             setattr(
                                 self,
                                 var_name,
