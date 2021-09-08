@@ -1,10 +1,13 @@
+import pathlib
 import random
 import time
+import json
 from math import dist
 
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.properties import NumericProperty
+from kivy.properties import BoundedNumericProperty
 from kivy.properties import ColorProperty
 from kivy.properties import BooleanProperty
 
@@ -14,9 +17,72 @@ from kivy.utils import get_color_from_hex
 
 from .wallpaper_base import WallpaperBase
 from ..utils.logger import LoggerClass
+from ..utils.config import Config
 
 Logger = LoggerClass(__name__)
 Logger.module = "point_walk"
+
+__all__ = ["Wallpaper"]
+
+settings_json = json.dumps(
+    [
+        {"type": "title", "title": "Point Walk Wallpaper Settings"},
+        {
+            "type": "string",
+            "title": "Color of the points",
+            "desc": "Set the color of the points. Must be a hex value",
+            "section": "wallpaper",
+            "key": "primary_color",
+        },
+        {
+            "type": "string",
+            "title": "Color of the lines",
+            "desc": "Set the color of the lines. Must be a hex value",
+            "section": "wallpaper",
+            "key": "secondary_color",
+        },
+        {
+            "type": "string",
+            "title": "Color of the spotlight point",
+            "desc": "Set the color of the point. Must be a hex value",
+            "section": "wallpaper",
+            "key": "spotlight_color",
+        },
+        {
+            "type": "numeric",
+            "title": "Number of points",
+            "desc": "50-150 for best performance and effect",
+            "section": "wallpaper",
+            "key": "number_of_points",
+        },
+        {
+            "type": "numeric",
+            "title": "Max velocity of points",
+            "section": "wallpaper",
+            "key": "velocity",
+        },
+        {
+            "type": "numeric",
+            "title": "Line Length",
+            "desc": "Max distance between two line for which the line should be drawn",
+            "section": "wallpaper",
+            "key": "line_length",
+        },
+        {
+            "type": "numeric",
+            "title": "Line Width",
+            "desc": "Width of the line",
+            "section": "wallpaper",
+            "key": "line_width",
+        },
+        {
+            "type": "numeric",
+            "title": "Point Size",
+            "section": "wallpaper",
+            "key": "point_size",
+        },
+    ]
+)
 
 
 class Point(FloatLayout):
@@ -30,22 +96,41 @@ class Point(FloatLayout):
 
 
 class Wallpaper(WallpaperBase):
-    primary_color = ColorProperty(defaultvalue=get_color_from_hex("949494"))
-    secondary_color = ColorProperty(defaultvalue=get_color_from_hex("3b3b3b"))
-    spotlight_color = ColorProperty(defaultvalue=(1, 0, 0, 1))
+    primary_color = ColorProperty(
+        defaultvalue=get_color_from_hex("949494"),
+        errorhandler=lambda x: get_color_from_hex("949494"),
+    )
+    secondary_color = ColorProperty(
+        defaultvalue=get_color_from_hex("3b3b3b"),
+        errorhandler=lambda x: get_color_from_hex("3b3b3b"),
+    )
+    spotlight_color = ColorProperty(
+        defaultvalue=get_color_from_hex("ff0000"),
+        errorhandler=lambda x: get_color_from_hex("ff0000"),
+    )
+    background_color = ColorProperty(
+        defaultvalue=get_color_from_hex("202020"),
+        errorhandler=lambda x: get_color_from_hex("000000"),
+    )
+
     time_init = NumericProperty(time.time())
-    number_of_points = NumericProperty(100)
+    number_of_points = BoundedNumericProperty(
+        100, min=1, max=200, errorhandler=lambda x: 100
+    )
 
     # in pixels
-    velocity = NumericProperty(60)
-    line_length = NumericProperty(150)
-    point_size = NumericProperty(7)
+    velocity = NumericProperty(60, errorhandler=lambda x: 60)
+    line_length = NumericProperty(150, errorhandler=lambda x: 150)
+    line_width = NumericProperty(1.5, errorhandler=lambda x: 1.5)
+    point_size = NumericProperty(7, errorhandler=lambda x: 7)
 
     def __init__(self):
         super(Wallpaper, self).__init__()
+        self.config = Config(local=True, module=pathlib.Path(__file__).stem)
         self.points = list()
         self.animation_loop_clock = None
         self.playing = False
+        self.load_config()
 
     def animate(self):
         Lines = InstructionGroup()
@@ -92,7 +177,7 @@ class Wallpaper(WallpaperBase):
                                         p.center_x,
                                         p.center_y,
                                     ),
-                                    width=1.5,
+                                    width=self.line_width,
                                 )
                             )
                     else:
@@ -142,3 +227,42 @@ class Wallpaper(WallpaperBase):
             self.time_init = time.time()
             self.animation_loop_clock()
             self.playing = True
+
+    def load_config(self):
+        self.config.config.setdefaults(
+            "wallpaper",
+            {
+                "primary_color": "949494",
+                "secondary_color": "3b3b3b",
+                "spotlight_color": "ff0000",
+                "number_of_points": 100,
+                "velocity": 60,
+                "line_length": 150,
+                "line_width": 1.5,
+                "point_size": 7,
+            },
+        )
+        self.config.write()
+        try:
+
+            self.primary_color = get_color_from_hex(
+                self.config.config.get("wallpaper", "primary_color")
+            )
+            self.secondary_color = get_color_from_hex(
+                self.config.config.get("wallpaper", "secondary_color")
+            )
+            self.spotlight_color = get_color_from_hex(
+                self.config.config.get("wallpaper", "spotlight_color")
+            )
+            self.number_of_points = self.config.config.getint(
+                "wallpaper", "number_of_points"
+            )
+
+            # in pixels
+            self.velocity = self.config.config.getint("wallpaper", "velocity")
+            self.line_length = self.config.config.getfloat("wallpaper", "line_length")
+            self.line_width = self.config.config.getfloat("wallpaper", "line_width")
+            self.point_size = self.config.config.getint("wallpaper", "point_size")
+
+        except KeyError:
+            Logger.critical("Error setting config falling back to defaults")
