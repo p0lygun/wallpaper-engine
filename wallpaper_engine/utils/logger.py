@@ -27,7 +27,7 @@ class LoggerClass:
             )
         self.module = module + ("-" if module else "")
 
-    def debug(self, msg: str) -> None:
+    def debug(self, msg: [int, list, str]) -> None:
         """Passes msg to kv_logger."""
         msg = str(msg).split(":", maxsplit=1)
         if len(msg) == 1:
@@ -39,7 +39,7 @@ class LoggerClass:
                 f"{Fore.CYAN}DEBUG {self.app_color}{self.module}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
             )
 
-    def info(self, msg: str) -> None:
+    def info(self, msg: [int, list, str]) -> None:
         """Passes msg to kv_logger."""
         msg = str(msg).split(":", maxsplit=1)
         if len(msg) == 1:
@@ -51,7 +51,7 @@ class LoggerClass:
                 f"{Fore.GREEN}INFO {self.app_color}{self.module}{msg[0]}{Style.RESET_ALL}: {msg[1]}"
             )
 
-    def critical(self, msg: str) -> None:
+    def critical(self, msg: [int, list, str]) -> None:
         """Passes msg to kv_logger."""
         msg = str(msg).split(":", maxsplit=1)
         if len(msg) == 1:
