@@ -59,7 +59,7 @@ class WallpaperBase(FloatLayout):
                     )
                 else:
                     if item["type"] == "numeric":
-                        if item.get("is_int") == "True":
+                        if item.get("is_int") in ["True", True]:
                             setattr(
                                 self,
                                 var_name,
