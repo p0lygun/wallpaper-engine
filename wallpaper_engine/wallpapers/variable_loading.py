@@ -48,10 +48,17 @@ settings_json = [
     },
     {
         "type": "string",
-        "title": "Arm Color",
-        "desc": "Color of the arm color in hex",
+        "title": "Primary color",
+        "desc": "color in hex",
         "section": "wallpaper",
-        "key": "arm_color",
+        "key": "primary_color",
+    },
+    {
+        "type": "string",
+        "title": "Secondary color",
+        "desc": "color in hex",
+        "section": "wallpaper",
+        "key": "secondary_color",
     },
     {
         "type": "numeric",
@@ -93,7 +100,8 @@ class Wallpaper(WallpaperBase):
     radius = NumericProperty(250)
     background_color = ColorProperty(get_color_from_hex("000000"))
 
-    arm_color = ColorProperty(get_color_from_hex("277038"))
+    primary_color = ColorProperty(get_color_from_hex("525252"))
+    secondary_color = ColorProperty(get_color_from_hex("2b2b2b"))
     arm_length = NumericProperty(100)
     arm_width = NumericProperty(2)
     number_of_arms = BoundedNumericProperty(
@@ -125,7 +133,7 @@ class Wallpaper(WallpaperBase):
         for i in range(1, self.number_of_arms + 1):
             arm = Arm()
             arm.angular_velocity = self.angular_velocity * (i / self.number_of_arms)
-            arm.arm_color = random.choice([(1, 1, 1, 0.1), (1, 1, 1, 0.2)])
+            arm.arm_color = random.choice([self.primary_color, self.secondary_color])
             arm.radius = self.radius * 0.03 * i
             arm.arm_length = self.arm_length
             arm.start_angle = self.start_angle - arm.arm_length
