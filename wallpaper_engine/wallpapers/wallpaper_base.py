@@ -1,6 +1,7 @@
+from kivy.app import App
+from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
 from kivy.utils import get_color_from_hex, get_hex_from_color
-from kivy.app import App
 
 
 class WallpaperBase(FloatLayout):
@@ -76,3 +77,7 @@ class WallpaperBase(FloatLayout):
                             var_name,
                             self.config.config.get("wallpaper", var_name),
                         )
+
+    def reset_wallpaper(self):
+        if self.animation_loop_clock:
+            Clock.unschedule(self.animation_loop_clock)

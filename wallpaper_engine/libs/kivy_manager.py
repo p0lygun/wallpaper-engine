@@ -1,10 +1,13 @@
 import logging
 import importlib
+import sys
+import gc
 
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.lang.builder import Builder
 from kivy.resources import resource_find
+from kivy.cache import Cache
 
 from .osc import OscHighway
 from ..utils.config import Config
@@ -69,8 +72,8 @@ class WallpaperEngine(App):
 
     def change_wallpaper(self):  # is also used to reload wallpaper
         self.we_config.reload()
-        self.wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
         self.remove_wallpaper()
+        self.wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
         # load  wallpaper kv before init
         # sin_wave -> sinwave.kv
         self.kv_file_name = "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
@@ -90,16 +93,22 @@ class WallpaperEngine(App):
 
     def remove_wallpaper(self):
         if self.wallpaper is not None:
+            self.wallpaper.reset_wallpaper()
             for child in self.root.walk():
                 child.canvas.before.clear()
                 child.canvas.clear()
                 child.canvas.after.clear()
-            Builder.unload_file(resource_find(self.kv_file_name))
             Builder.unbind_widget(self.wallpaper.uid)
+            Builder.unload_file(resource_find(self.kv_file_name))
+            sys.modules.pop("wallpaper_engine.wallpapers")
+            sys.modules.pop("wallpaper_engine.wallpapers.wallpaper_base")
+            sys.modules.pop(f"wallpaper_engine.wallpapers.{self.wallpaper_file_name}")
+            for name in Cache._categories.keys():
+                Cache.remove(name)
             importlib.invalidate_caches()
             del self.wallpaper
             del self.wallpaper_module
-
+            gc.collect()
         self.root.clear_widgets()
 
     def receive(self, *values):
