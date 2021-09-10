@@ -1,9 +1,12 @@
+from pathlib import Path
 import importlib
 import sys
 
 try:
     from kivy.config import Config as KvConfig
 
+    KvConfig.read(str((Path(__file__).parents[1] / "data" / "kivy_menu_config")))
+    KvConfig.write()
     KvConfig.set("kivy", "log_level", "warning")
     KvConfig.set("graphics", "window_state", "hidden")
 except ImportError:
