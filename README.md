@@ -15,7 +15,6 @@ steps
 
 
 To change your wallpaper simply change the wallpaper in settings  
-( must run the project once to populate the config file )  
 Valid name for a wallpaper is the same name as the name of the script in wallpaper directory
 
 ***
