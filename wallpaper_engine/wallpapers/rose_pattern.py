@@ -2,17 +2,22 @@ import math
 import pathlib
 import random
 
-from kivy.properties import NumericProperty
-from kivy.properties import ColorProperty
-from kivy.properties import ListProperty
+from kivy.properties import (
+    NumericProperty,
+    ColorProperty,
+    ListProperty,
+    OptionProperty,
+)
+
 from kivy.app import App
-from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
 from kivy.utils import get_color_from_hex
-from kivy.animation import Animation
+from kivy.animation import Animation, AnimationTransition
 from kivy.core.window import Window
-from kivy.graphics import InstructionGroup
+from kivy.graphics import InstructionGroup, Color
 from kivy.graphics import SmoothLine
+
 
 from wallpaper_engine.wallpapers.wallpaper_base import WallpaperBase
 from wallpaper_engine.utils.config import Config
@@ -39,11 +44,18 @@ settings_json = [
         "section": "wallpaper",
         "key": "base_radius_factor",
     },
+    {
+        "type": "string",
+        "title": "Transition",
+        "desc": "transition to use on points must be one of kivy.animation.AnimationTransition",
+        "section": "wallpaper",
+        "key": "transition",
+    },
 ]
 
 
-class Rose(Widget):
-    line_color = ColorProperty(get_color_from_hex("#ff0000"))
+class Rose(FloatLayout):
+    points_color = ColorProperty(get_color_from_hex("#ff0000"))
     line_points = ListProperty()
     diffusion_points = ListProperty()
     radius = NumericProperty(50)
@@ -59,6 +71,15 @@ class Wallpaper(WallpaperBase):
     base_radius = NumericProperty()
     base_radius_factor = NumericProperty(0.2)
     point_factor = NumericProperty(0.001)
+    transition = OptionProperty(
+        defaultvalue="in_out_expo",
+        options=[
+            str(key)
+            for key, values in AnimationTransition.__dict__.items()
+            if type(values) == staticmethod and key[0] != "_"
+        ],
+        errorvalue="in_out_expo",
+    )
 
     def __init__(self, debug=False):
         super(Wallpaper, self).__init__()
@@ -69,6 +90,7 @@ class Wallpaper(WallpaperBase):
     def animate(self):
         rose = self.container.children[0]
         rose.canvas.add(rose.inst_group)
+        anim_dur = 2
 
         def inner_loop(dt: int):
             d = [i for i in range(1, 10)]
@@ -79,26 +101,19 @@ class Wallpaper(WallpaperBase):
                     new_points = self.shuffle_list(
                         self.calc_points(i, j, precision=self.point_factor)
                     )
-                    if full_animation is None:
-                        cur_anim = Animation(
-                            diffusion_points=new_points,
-                            n=i,
-                            d_=j,
-                            transition="out_elastic",
-                        )
-                        cur_anim.bind(on_start=self.anim_start)
-                        cur_anim.bind(on_complete=self.anim_complete)
+                    cur_anim = Animation(
+                        diffusion_points=new_points,
+                        n=i,
+                        d_=j,
+                        transition=self.transition,
+                        duration=anim_dur,
+                    )
+                    cur_anim.bind(on_start=self.anim_start)
+                    cur_anim.bind(on_progress=self.on_prog)
 
+                    if full_animation is None:
                         full_animation = cur_anim
                     else:
-                        cur_anim = Animation(
-                            diffusion_points=new_points,
-                            n=i,
-                            d_=j,
-                            transition="out_elastic",
-                        )
-                        cur_anim.bind(on_start=self.anim_start)
-                        cur_anim.bind(on_complete=self.anim_complete)
                         full_animation += cur_anim
 
                     full_animation += Animation(spacer=1, transition="linear")
@@ -106,15 +121,27 @@ class Wallpaper(WallpaperBase):
             full_animation.repeat = True
             full_animation.start(rose)
 
-        self.animation_loop_clock = Clock.schedule_once(inner_loop, 5)
+        self.animation_loop_clock = Clock.schedule_once(inner_loop, 0)
+
+    def on_prog(self, anim, widget, prog):
+        if prog * 100 >= 95:
+            if len(widget.inst_group.children) == 0:
+                n = int(anim.animated_properties["n"])
+                d = int(anim.animated_properties["d_"])
+                color = Color(rgba=self.line_color)
+                color.a = 0
+                duration = anim.duration * (1 - prog)
+                alpha_anim = (
+                    Animation(a=1, transition=self.transition, duration=duration)
+                    + Animation()
+                    + Animation(a=0, transition=self.transition, duration=duration)
+                )
+                widget.inst_group.add(color)
+                widget.inst_group.add(SmoothLine(points=self.calc_points(n, d)))
+                alpha_anim.start(color)
 
     def anim_start(self, anim, widget):
         widget.inst_group.clear()
-
-    def anim_complete(self, anim, widget):
-        n = int(anim.animated_properties["n"])
-        d = int(anim.animated_properties["d_"])
-        widget.inst_group.add(SmoothLine(points=self.calc_points(n, d)))
 
     def build(self):
         Window.bind(on_resize=self.on_resize)
@@ -124,7 +151,7 @@ class Wallpaper(WallpaperBase):
         self.shape_center = (Window.width / 2, Window.height / 2)
         Logger.debug(self.shape_center)
         rose = Rose()
-        rose.line_color = self.line_color
+        rose.points_color = self.line_color
         rose.diffusion_points = self.shuffle_list(
             self.calc_points(1, 1, self.point_factor)
         )
