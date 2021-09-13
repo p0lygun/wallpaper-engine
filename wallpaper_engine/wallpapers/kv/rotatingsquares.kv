@@ -1,0 +1,25 @@
+<Square>:
+    size_hint:None,None
+    width:self.s_width
+    height:self.s_width
+    x: root.s_x
+    y: root.s_y
+    canvas:
+        Color
+            rgba: root.square_color
+        PushMatrix:
+        Rotate:
+            angle:root.rot_angle
+            origin:self.center
+        Line:
+            rectangle:(self.x, self.y, self.width, self.width)
+            width:root.square_width
+
+        PopMatrix
+
+<Wallpaper>:
+    FloatLayout:
+        id : container
+
+#FloatLayout:
+#    id: main_container
