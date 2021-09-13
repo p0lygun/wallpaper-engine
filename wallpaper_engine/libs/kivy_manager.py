@@ -88,8 +88,8 @@ class WallpaperEngine(App):
         # put the new one and start the animation
         self.wallpaper = self.wallpaper_module.Wallpaper()
         self.root.add_widget(self.wallpaper)
-        self.wallpaper.build()
-        self.wallpaper.animate()
+        Clock.schedule_once(lambda x: self.wallpaper.build(), 0.5)
+        Clock.schedule_once(lambda x: self.wallpaper.animate(), 1)
 
     def remove_wallpaper(self):
         if self.wallpaper is not None:
