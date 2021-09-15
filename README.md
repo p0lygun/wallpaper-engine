@@ -15,8 +15,12 @@ steps
 
 
 To change your wallpaper simply change the wallpaper in settings  
-Valid name for a wallpaper is the same name as the name of the script in wallpaper directory
+Valid name for a wallpaper is the same name as the name of the script in wallpaper directory  
 
-[Kivy Discord](https://chat.kivy.org) I am mostly active there 
+***
+Currently working on
+[Project to-do](https://github.com/p0lygun/wallpaper-engine/projects/1)
+
+[Kivy Discord](https://chat.kivy.org) I am mostly active there (gala#8316)
 ***
 thx to [@beesandbombs](https://twitter.com/beesandbombs/) for a lot of ideas
