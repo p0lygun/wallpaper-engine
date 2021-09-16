@@ -1,0 +1,21 @@
+FloatLayout:
+    size_hint:1,1
+    BoxLayout:
+        size_hint: 0.3,0.5
+        pos_hint : {'center_x':0.5,'center_y':0.5}
+        orientation:'vertical'
+        Button:
+            text: "change / reload wallpaper"
+            on_release: app.change_wallpaper()
+        Button:
+            text: "HIDE / SHOW"
+            on_release: app.toggle_window_visibility()
+        Button:
+            text: "Play / Pause"
+            on_release: app.toggle_state()
+        Button:
+            text: "Show settings"
+            on_release: app.open_settings()
+        Button:
+            text: "Exit"
+            on_release: app.exit()

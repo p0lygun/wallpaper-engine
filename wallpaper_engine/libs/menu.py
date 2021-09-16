@@ -13,7 +13,6 @@ except ImportError:
     pass
 
 from kivy.app import App
-from kivy.lang.builder import Builder
 from kivy.uix.settings import SettingsWithSidebar
 from kivy.core.window import Window
 import stackprinter
@@ -35,33 +34,11 @@ from wallpaper_engine.utils.common import (
     valid_wallpapers,
     wallpaper_dir,
     build_settings_json,
+    project_dir,
 )
 
 stackprinter.set_excepthook(style="darkbg2")
 
-kv = """
-StackLayout:
-    Button:
-        text: "change / reload wallpaper"
-        size_hint : [.2,.1]
-        on_release: app.change_wallpaper()
-    Button:
-        text: "HIDE / SHOW"
-        size_hint : [.2,.1]
-        on_release: app.toggle_window_visibility()
-    Button:
-        text: "Play / Pause"
-        size_hint : [.2,.1]
-        on_release: app.toggle_state()
-    Button:
-        text: "Show settings"
-        size_hint : [.2,.1]
-        on_release: app.open_settings()
-    Button:
-        text: "Exit"
-        size_hint : [.2,.1]
-        on_release: app.exit()
-"""
 
 menu_json = [
     {"type": "title", "title": "App"},
@@ -103,6 +80,9 @@ menu_osc = OscHighway("menu")
 class WallpaperEngineMenu(App):
     def __init__(self):
         super(WallpaperEngineMenu, self).__init__()
+        self.kv_file = (
+            str(project_dir / "libs" / "kv" / self.__class__.__name__.lower()) + ".kv"
+        )
         self.connection_ok = False
         self.we_config = Config()
         self.wallpaper_dir = wallpaper_dir
@@ -110,7 +90,6 @@ class WallpaperEngineMenu(App):
         self.wallpaper_name = self.we_config.config.get("wallpaper", "active")
         self.wallpaper_changed = False
         self.wallpaper_config = None
-
         self.playing = True
 
     def on_start(self):
@@ -162,8 +141,7 @@ class WallpaperEngineMenu(App):
             True if self.we_config.config.getint("app", "kivy_settings") else False
         )
         self.settings_cls = SettingsWithSidebar
-
-        return Builder.load_string(kv)
+        Window.bind(on_request_close=self.on_request_close)
 
     def build_settings(self, settings):
         wallpaper_module = importlib.import_module(
@@ -214,6 +192,10 @@ class WallpaperEngineMenu(App):
     @staticmethod
     def toggle_window_visibility():
         menu_osc.send_message(b"/receive", commands["VISIBILITY"])
+
+    def on_request_close(self, *args, **kwargs):
+        self.exit()
+        return False
 
 
 if __name__ == "__main__":
