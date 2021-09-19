@@ -25,3 +25,7 @@ def build_settings_json(json_data: list) -> str:
         if item.get("is_int"):
             item.pop("is_int")
     return json.dumps(tmp)
+
+
+def map_range(value, min_vale, max_value, map_min, map_max):
+    return (value - min_vale) / (max_value - min_vale) * (map_max - map_min) + map_min
