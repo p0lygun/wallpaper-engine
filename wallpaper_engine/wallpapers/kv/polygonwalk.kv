@@ -1,0 +1,31 @@
+FloatLayout:
+    size_hint: (1,1)
+    id : main_container
+
+<Wallpaper>:
+    size_hint : (1,1)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: (0,0)
+            size: self.size
+    FloatLayout:
+        size_hint : (1,1)
+        id : container
+
+<Polygon>:
+    size_hint:None,None
+    EffectWidget:
+        effects: root.effects
+        #pos_hint: {'center_x':0.5, 'center_y':0.5}
+        x:root.x
+        y:root.y
+        id : effects_widget
+        Widget:
+            canvas:
+                Color:
+                    rgba:root.part_color
+                SmoothLine:
+                    ellipse: (root.poly_width*0.5, root.poly_width*0.5, root.poly_width / 2, root.poly_width / 2, 0, 360, root.sides * 2)
+                    width: root.lwidth
