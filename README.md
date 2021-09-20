@@ -3,6 +3,9 @@ Hi, there this project lets you set a [kivy](https://kivy.org/) Window as your w
 
 Anything you can make in Kivy can be set as you wallpaper (given it does not require user input)
 
+## A few of the current available wallpapers
+[![Wallpaper_engine_showcase](https://i.imgur.com/rnKPpAo.png)](https://youtu.be/MnW2TFL00b8)
+
 ------------
 
 ## Installation  
