@@ -1,4 +1,5 @@
 # Wallpaper Engine
+# Currently Windows Only
 Hi, there this project lets you set a [kivy](https://kivy.org/) Window as your wallpaper. What does that mean ?
 
 Anything you can make in Kivy can be set as you wallpaper (given it does not require user input)
