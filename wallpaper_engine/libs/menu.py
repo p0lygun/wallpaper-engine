@@ -1,6 +1,5 @@
 from pathlib import Path
 import importlib
-import sys
 
 try:
     from kivy.config import Config as KvConfig
@@ -24,7 +23,6 @@ try:
     LoggerClass.prefix = "WE-MENU"
     Logger = LoggerClass(__name__)
     Logger.module = "Menu"
-    Logger.debug(f"python exe at : {sys.executable}")
 except ImportError:
     pass
 from wallpaper_engine.utils.config import Config
