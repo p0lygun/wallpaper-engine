@@ -19,6 +19,7 @@ Logger = LoggerClass(__name__)
 Logger.module = "kivy_manager"
 
 wallpaper_osc = OscHighway("wallpaper")
+wallpaper_osc.start()
 
 
 class WallpaperEngine(App):
@@ -27,12 +28,12 @@ class WallpaperEngine(App):
         Logger.set_level(logging.DEBUG)
         self.we_config = Config()
         self.window_manager = WindowManager()
-        self.hwnd = None
         self.playing = True
         self.hidden = False
         self.wallpaper = None
         self.wallpaper_module = None
         self.wallpaper_file_name = None
+        self.connected = False
         self.kv_file_name = None
         self.kv_file = resource_find("wallpaperengine.kv")
 
@@ -47,13 +48,16 @@ class WallpaperEngine(App):
 
     def run(self):
         Logger.debug("Starting Wallpaper Layer")
-        wallpaper_osc.start()
         wallpaper_osc.server.bind(b"/receive", self.receive)
         wallpaper_osc.server.bind(b"/ping", self.ping)
-
-        Clock.schedule_once(lambda dt: self.window_manager.reset_wallpaper(), 0.5)
-        Clock.schedule_once(lambda dt: self.window_manager.set_as_wallpaper(), 0.5)
+        Clock.schedule_interval(self.set_wallpaper, 0)
         super().run()
+
+    def set_wallpaper(self, dt: int):
+        if self.connected:
+            Logger.debug("Connected to Menu OSC.. setting as wallpaper")
+            self.window_manager.set_as_wallpaper()
+            return False
 
     def toggle_window_visibility(self):
         if self.playing:
@@ -129,6 +133,6 @@ class WallpaperEngine(App):
             Logger.debug("Change command received")
             self.change_wallpaper()
 
-    @staticmethod
     def ping(self, *values):
         wallpaper_osc.send_message(b"/pong", [True], log=False)
+        self.connected = True

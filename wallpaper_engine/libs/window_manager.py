@@ -1,7 +1,6 @@
 import win32gui
 
 from kivy.app import App
-from kivy.core.window import Window
 
 from ..utils.logger import LoggerClass
 
@@ -19,6 +18,7 @@ class WindowManager:
     def set_as_wallpaper(self):
         """Set's kivy windows as wallpaper."""
         # get progman window handle
+        self.reset_wallpaper()
         progman = win32gui.FindWindowEx(0, 0, "Progman", None)
         # set message to progman
         win32gui.SendMessage(progman, int("0x052C", 16))
@@ -34,9 +34,7 @@ class WindowManager:
         win32gui.ShowWindow(self.WorkerW, 1)
         # set kivy window as the wallpaper
         self.kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
-        self.app.hwnd = self.kivy_window
         win32gui.SetParent(self.kivy_window, self.WorkerW)  # child , new parent
-        Window.window_state = "visible"
 
     def reset_wallpaper(self):
         win32gui.EnumWindows(self.set_workerw, False)
