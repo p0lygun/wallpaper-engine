@@ -11,6 +11,8 @@ Anything you can make in Kivy can be set as you wallpaper (given it does not req
 
 ## Installation  
 
+### only tested on [CPython](https://www.python.org/)
+
 installing Wallpaper Engine  is very easy 
 
 First install [Poetry](https://python-poetry.org/) (it's an awesome package manager for python)  
