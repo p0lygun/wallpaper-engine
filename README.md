@@ -17,10 +17,18 @@ installing Wallpaper Engine  is very easy
 
 First install [Poetry](https://python-poetry.org/) (it's an awesome package manager for python)  
 
-	clone this repo (git clone "https://github.com/p0lygun/wallpaper-engine.git")
-	cd wallpaper-engine
-	poetry install
-	poetry run python wallpaper_engine  
+  clone this repo and cd into dir
+
+	git clone "https://github.com/p0lygun/wallpaper-engine.git" && cd wallpaper-engine
+	
+  Install required packages using poetry
+
+	poetry install  
+
+  RUN !!!
+
+	poetry run python wallpaper_engine    
+	
  
 That's it. The wallpaper-engine is now installed, you should see a window like this  
 
