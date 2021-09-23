@@ -13,6 +13,7 @@ class OscHighway:
     def __init__(self, name: str):
         if name not in ["wallpaper", "menu"]:
             raise ValueError("Invalid name for OSC instance")
+        Logger.debug(f"Init OSC for {name}")
         self.server = OSCThreadServer()
         self.sections = ["wallpaper", "menu"]
         self.name = name

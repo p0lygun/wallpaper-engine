@@ -107,6 +107,7 @@ class WallpaperEngineMenu(App):
         menu_osc.server.bind(b"/pong", self.pong)
 
         async def check_connection():
+            Logger.debug("Starting Connection Check Loop")
             menu_osc.send_message(b"/ping", [True])
             while not self.connection_ok:
                 menu_osc.config.reload()

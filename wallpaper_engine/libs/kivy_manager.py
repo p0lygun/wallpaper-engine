@@ -19,13 +19,16 @@ Logger = LoggerClass(__name__)
 Logger.module = "kivy_manager"
 
 wallpaper_osc = OscHighway("wallpaper")
+
 wallpaper_osc.start()
 
 
 class WallpaperEngine(App):
     def __init__(self, **kwargs):
+        self.engine_debug = kwargs.pop("engine_debug")
         super().__init__(**kwargs)
         Logger.set_level(logging.DEBUG)
+        Logger.debug("Init WallpaperEngine")
         self.we_config = Config()
         self.window_manager = WindowManager()
         self.playing = True
@@ -54,7 +57,7 @@ class WallpaperEngine(App):
         super().run()
 
     def set_wallpaper(self, dt: int):
-        if self.connected:
+        if self.connected and not self.engine_debug:
             Logger.debug("Connected to Menu OSC.. setting as wallpaper")
             self.window_manager.set_as_wallpaper()
             return False
@@ -134,5 +137,6 @@ class WallpaperEngine(App):
             self.change_wallpaper()
 
     def ping(self, *values):
+        Logger.debug("Received ping")
         wallpaper_osc.send_message(b"/pong", [True], log=False)
         self.connected = True
