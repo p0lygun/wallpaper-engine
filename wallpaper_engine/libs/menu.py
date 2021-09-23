@@ -138,7 +138,7 @@ class WallpaperEngineMenu(App):
 
     def build(self):
         self.use_kivy_settings = (
-            True if self.we_config.config.getint("app", "kivy_settings") else False
+            True if self.we_config.config.getboolean("app", "kivy_settings") else False
         )
         self.settings_cls = SettingsWithSidebar
         Window.bind(on_request_close=self.on_request_close)
