@@ -18,7 +18,7 @@ async def launch_menu():
 
 if __name__ == "__main__":
     try:
-        engine_debug = True
+        engine_debug = False
         init()
         Logger.debug("Starting Menu")
         trio.run(launch_menu)
