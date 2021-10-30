@@ -137,6 +137,6 @@ class WallpaperEngine(App):
             self.change_wallpaper()
 
     def ping(self, *values):
-        Logger.debug("Received ping")
+        # Logger.debug("Received ping")
         wallpaper_osc.send_message(b"/pong", [True], log=False)
         self.connected = True
