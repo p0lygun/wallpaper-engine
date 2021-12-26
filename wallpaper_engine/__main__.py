@@ -10,9 +10,11 @@ from .utils.logger import LoggerClass
 
 Logger = LoggerClass(__name__)
 
+command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
+Logger.debug(command)
+
 
 async def launch_menu():
-    command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
     await trio.open_process(command)
 
 
