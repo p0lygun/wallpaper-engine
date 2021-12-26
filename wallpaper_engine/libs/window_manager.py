@@ -1,7 +1,8 @@
+import win32con
 import win32gui
+import win32api
 
 from kivy.app import App
-
 from ..utils.logger import LoggerClass
 
 Logger = LoggerClass(__name__)
@@ -14,6 +15,8 @@ class WindowManager:
         self.WorkerW = 0
         self.desktop_icons = 0
         self.kivy_window = 0
+        self.any_maximized = False
+        self.maximized_windows = []
 
     def set_as_wallpaper(self):
         """Set's kivy windows as wallpaper."""
@@ -57,3 +60,46 @@ class WindowManager:
         else:
             win32gui.ShowWindow(self.WorkerW, 0)
             self.hidden = True
+
+    def check_maximized_window(self) -> bool:
+        """
+        Checks for maximized window and retuns a bool
+        """
+        self.any_maximized = False
+
+        def inner_check(hwnd, extra):
+            window_placement = win32gui.GetWindowPlacement(hwnd)
+            # GetWindowPlacement
+            # returns (flags, showCmd, (minposX, minposY), (maxposX, maxposY), (normalposX, normalposY))
+            if (
+                win32gui.IsWindowVisible(hwnd)
+                and window_placement[1] == win32con.SW_SHOWMAXIMIZED
+            ):
+                monitor_handle = win32api.MonitorFromWindow(
+                    hwnd, win32con.MONITOR_DEFAULTTONULL
+                )
+                # check if the window is on primary window
+                if monitor_handle == win32api.MonitorFromPoint(
+                    (0, 0), win32con.MONITOR_DEFAULTTOPRIMARY
+                ):
+                    if win32gui.GetWindowText(hwnd) != "Settings":
+                        if hwnd not in self.maximized_windows:
+                            self.maximized_windows.append(hwnd)
+                            if extra:
+                                Logger.debug(
+                                    f"Maximized Window {win32gui.GetWindowText(hwnd)}, {hex(hwnd)}, {window_placement}"
+                                )
+                            self.last_maximized = hwnd
+                        self.any_maximized = True
+            else:
+                if hwnd in self.maximized_windows:
+                    self.maximized_windows.remove(hwnd)
+
+        win32gui.EnumWindows(inner_check, True)
+
+        return self.any_maximized
+
+
+if __name__ == "__main__":
+    wm = WindowManager()
+    print(wm.check_maximized_window())
