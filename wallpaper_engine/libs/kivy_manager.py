@@ -54,6 +54,7 @@ class WallpaperEngine(App):
         wallpaper_osc.server.bind(b"/receive", self.receive)
         wallpaper_osc.server.bind(b"/ping", self.ping)
         Clock.schedule_interval(self.set_wallpaper, 0)
+        Clock.schedule_interval(self.check_maximized_window, 1)
         super().run()
 
     def set_wallpaper(self, dt: int):
@@ -70,12 +71,14 @@ class WallpaperEngine(App):
         self.window_manager.toggle_workerw_visibility()
 
     def play(self):
-        self.wallpaper.play()
-        self.playing = True
+        if self.wallpaper:
+            self.wallpaper.play()
+            self.playing = True
 
     def pause(self):
-        self.wallpaper.pause()
-        self.playing = False
+        if self.wallpaper:
+            self.wallpaper.pause()
+            self.playing = False
 
     def change_wallpaper(self):  # is also used to reload wallpaper
         self.we_config.reload()
@@ -117,6 +120,12 @@ class WallpaperEngine(App):
             del self.wallpaper_module
             gc.collect()
         self.root.clear_widgets()
+
+    def check_maximized_window(self, dt: int):
+        if self.window_manager.check_maximized_window():
+            self.pause()
+        else:
+            self.play()
 
     def receive(self, *values):
         if commands["EXIT"] in values:
