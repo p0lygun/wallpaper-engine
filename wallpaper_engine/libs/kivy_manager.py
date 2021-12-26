@@ -54,6 +54,7 @@ class WallpaperEngine(App):
         wallpaper_osc.server.bind(b"/receive", self.receive)
         wallpaper_osc.server.bind(b"/ping", self.ping)
         Clock.schedule_interval(self.set_wallpaper, 0)
+        Clock.schedule_interval(self.check_maximized_window, 1)
         super().run()
 
     def set_wallpaper(self, dt: int):
@@ -117,6 +118,9 @@ class WallpaperEngine(App):
             del self.wallpaper_module
             gc.collect()
         self.root.clear_widgets()
+
+    def check_maximized_window(self, dt: int):
+        pass
 
     def receive(self, *values):
         if commands["EXIT"] in values:
