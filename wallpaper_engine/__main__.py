@@ -35,7 +35,8 @@ if __name__ == "__main__":
         else:
             Config.set("graphics", "borderless", "0")
             Config.set("graphics", "resizable", "1")
-
+            Config.set("graphics", "window_state", "hidden")
+        Config.write()
         from kivy.resources import resource_add_path
 
         from .libs.kivy_manager import WallpaperEngine
