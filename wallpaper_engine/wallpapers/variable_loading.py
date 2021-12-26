@@ -10,11 +10,8 @@ from kivy.properties import ColorProperty
 from kivy.utils import get_color_from_hex
 
 from wallpaper_engine.wallpapers.wallpaper_base import WallpaperBase
-from wallpaper_engine.utils.logger import LoggerClass
 from wallpaper_engine.utils.config import Config
 
-Logger = LoggerClass(__name__)
-Logger.module = "variable_loading"
 
 settings_json = [
     {"type": "title", "title": "Variable Loading wallpaper Settings"},

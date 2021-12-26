@@ -3,9 +3,7 @@ import win32gui
 import win32api
 
 from kivy.app import App
-from ..utils.logger import LoggerClass
-
-Logger = LoggerClass(__name__)
+from loguru import logger
 
 
 class WindowManager:
@@ -50,7 +48,7 @@ class WindowManager:
         if self.desktop_icons:
             self.WorkerW = win32gui.FindWindowEx(0, hwnd, "WorkerW", None)
             if extra:
-                Logger.debug(f"WorkerW hwnd {hex(self.WorkerW)}")
+                logger.debug(f"WorkerW hwnd {hex(self.WorkerW)}")
 
     def toggle_workerw_visibility(self):
         win32gui.EnumWindows(self.set_workerw, False)
@@ -86,7 +84,7 @@ class WindowManager:
                         if hwnd not in self.maximized_windows:
                             self.maximized_windows.append(hwnd)
                             if extra:
-                                Logger.debug(
+                                logger.debug(
                                     f"Maximized Window {win32gui.GetWindowText(hwnd)}, {hex(hwnd)}, {window_placement}"
                                 )
                             self.last_maximized = hwnd

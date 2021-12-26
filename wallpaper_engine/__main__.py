@@ -2,27 +2,24 @@ import sys
 from pathlib import Path
 import win32api
 
-from colorama import init
 from kivy.config import Config
+from loguru import logger
+import stackprinter
 import trio
 
-from .utils.logger import LoggerClass
-
-Logger = LoggerClass(__name__)
-
 command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
-Logger.debug(command)
 
 
 async def launch_menu():
     await trio.open_process(command)
 
 
+stackprinter.set_excepthook(style="darkbg2")
+
 if __name__ == "__main__":
     try:
         engine_debug = False
-        init()
-        Logger.debug("Starting Menu")
+        logger.debug("Starting Menu")
         trio.run(launch_menu)
         Config.read(str(Path(__file__).parent / "data" / "kivy_backend_config"))
         Config.write()
@@ -45,7 +42,7 @@ if __name__ == "__main__":
         resource_add_path(str((project_dir / "libs" / "kv")))
         resource_add_path(str((project_dir / "wallpapers" / "kv")))
 
-        Logger.debug("Starting Wallpaper Engine App")
+        logger.debug("Starting Wallpaper Engine App")
         app = WallpaperEngine(engine_debug=engine_debug)
         app.run()
         app.window_manager.reset_wallpaper()
@@ -54,4 +51,4 @@ if __name__ == "__main__":
         from kivy.app import App
 
         App.get_running_app().window_manager.reset_wallpaper()
-        Logger.info("Exiting...")
+        logger.info("Exiting...")

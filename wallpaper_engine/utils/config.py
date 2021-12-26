@@ -1,16 +1,12 @@
-import logging
 import random
 from uuid import uuid4
 from pathlib import Path
 
 import appdirs
 from kivy.config import ConfigParser
+from loguru import logger
 
-from .logger import LoggerClass
 from .common import project_dir, valid_wallpapers
-
-Logger = LoggerClass(__name__)
-Logger.module = "config"
 
 
 class Config:
@@ -24,7 +20,7 @@ class Config:
             else:
                 self.dir = project_dir / "data" / module
         else:
-            Logger.debug("using global config")
+            logger.debug("using global config")
             self.dir = Path(
                 appdirs.user_data_dir(appname=self.appname, appauthor="", roaming=True)
             )
@@ -33,18 +29,18 @@ class Config:
         self.config_file_path.touch(exist_ok=True)
         self.config.read(self.config_file_path.as_posix())
         if not local:
-            Logger.debug(f"config file at {self.config_file_path}")
+            logger.debug(f"config file at {self.config_file_path}")
             if len(self.config.sections()) == 0:
                 if not self.config.has_section("app") or self.config.get(
                     "app", "first_run", fallback=True
                 ):
-                    Logger.debug("Making New Config")
+                    logger.debug("Making New Config")
                     # set sections
                     self.config.setdefaults(
                         "app",
                         {
                             "first_run": True,
-                            "log_level": logging.DEBUG,
+                            "log_level": "DEBUG",
                             "debug": True,
                             "uuid": uuid4().hex,
                             "fps": 60,
@@ -63,8 +59,8 @@ class Config:
                         {"active": f"{random_wallpaper}"},
                     )
             else:
-                Logger.info("Using existing config")
-                Logger.set_level(self.config.get("app", "log_level"))
+                logger.info("Using existing config")
+                logger.level(self.config.get("app", "log_level"))
 
     def remove_file(self) -> None:
         """removes the config file from disk"""
