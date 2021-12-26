@@ -89,3 +89,11 @@ class Wallpaper(WallpaperBase):
             star.z = self.width
             star.star_color = self.star_color
             self.container.add_widget(star)
+
+    def play(self):
+        if self.animation_loop_clock:
+            self.animation_loop_clock()
+
+    def pause(self):
+        if self.animation_loop_clock:
+            self.animation_loop_clock.cancel()
