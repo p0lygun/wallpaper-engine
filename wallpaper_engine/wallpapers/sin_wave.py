@@ -10,13 +10,12 @@ from kivy.properties import ColorProperty
 from kivy.properties import BooleanProperty
 from kivy.animation import AnimationTransition
 from kivy.utils import get_color_from_hex
+from loguru import logger
 
-from wallpaper_engine.utils.logger import LoggerClass
 from wallpaper_engine.utils.config import Config
 from .wallpaper_base import WallpaperBase
 
-Logger = LoggerClass(__name__)
-Logger.module = "Wallpaper_Sin_wave"
+
 settings_json = [
     {"type": "title", "title": "Sin wave wallpaper Settings"},
     {
@@ -96,7 +95,7 @@ class Wallpaper(WallpaperBase):
 
     def build(self):
 
-        Logger.debug("Building wallpaper")
+        logger.debug("Building wallpaper")
         self.app = App.get_running_app()
         self.container = self.app.root.children[0].ids.container
         for i in range(self.number_of_rect):

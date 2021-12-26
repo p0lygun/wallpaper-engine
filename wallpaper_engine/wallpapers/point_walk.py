@@ -15,11 +15,8 @@ from kivy.graphics import Line, InstructionGroup, Color
 from kivy.utils import get_color_from_hex
 
 from .wallpaper_base import WallpaperBase
-from ..utils.logger import LoggerClass
 from ..utils.config import Config
 
-Logger = LoggerClass(__name__)
-Logger.module = "point_walk"
 
 __all__ = ["Wallpaper"]
 

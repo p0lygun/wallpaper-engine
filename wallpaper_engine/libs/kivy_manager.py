@@ -1,4 +1,3 @@
-import logging
 import importlib
 import sys
 import gc
@@ -9,14 +8,13 @@ from kivy.lang.builder import Builder
 from kivy.resources import resource_find
 from kivy.cache import Cache
 from kivy.core.window import Window
+from loguru import logger
+
 from .osc import OscHighway
 from ..utils.config import Config
-from ..utils.logger import LoggerClass
 from ..utils.common import commands
 from .window_manager import WindowManager
 
-Logger = LoggerClass(__name__)
-Logger.module = "kivy_manager"
 
 wallpaper_osc = OscHighway("wallpaper")
 
@@ -27,8 +25,8 @@ class WallpaperEngine(App):
     def __init__(self, **kwargs):
         self.engine_debug = kwargs.pop("engine_debug")
         super().__init__(**kwargs)
-        Logger.set_level(logging.DEBUG)
-        Logger.debug("Init WallpaperEngine")
+        logger.level("DEBUG")
+        logger.debug("Init WallpaperEngine")
         self.we_config = Config()
         self.window_manager = WindowManager()
         self.playing = True
@@ -46,11 +44,11 @@ class WallpaperEngine(App):
         )
 
     def on_stop(self, *args):
-        Logger.debug("Stopping Wallpaper and exiting")
+        logger.debug("Stopping Wallpaper and exiting")
         wallpaper_osc.stop()
 
     def run(self):
-        Logger.debug("Starting Wallpaper Layer")
+        logger.debug("Starting Wallpaper Layer")
         wallpaper_osc.server.bind(b"/receive", self.receive)
         wallpaper_osc.server.bind(b"/ping", self.ping)
         Clock.schedule_interval(self.set_wallpaper, 0)
@@ -59,7 +57,7 @@ class WallpaperEngine(App):
 
     def set_wallpaper(self, dt: int):
         if self.connected and not self.engine_debug:
-            Logger.debug("Connected to Menu OSC.. setting as wallpaper")
+            logger.debug("Connected to Menu OSC.. setting as wallpaper")
             self.window_manager.set_as_wallpaper()
             return False
 
@@ -93,7 +91,7 @@ class WallpaperEngine(App):
                 f".wallpapers.{self.wallpaper_file_name}", "wallpaper_engine"
             )
         except ImportError as e:
-            Logger.critical(f"{e.name} not found...")
+            logger.critical(f"{e.name} not found...")
             raise
         # put the new one and start the animation
         self.wallpaper = self.wallpaper_module.Wallpaper()
@@ -118,6 +116,7 @@ class WallpaperEngine(App):
             importlib.invalidate_caches()
             del self.wallpaper
             del self.wallpaper_module
+            self.wallpaper = None
             gc.collect()
         self.root.clear_widgets()
 
@@ -129,24 +128,24 @@ class WallpaperEngine(App):
 
     def receive(self, *values):
         if commands["EXIT"] in values:
-            Logger.debug("exit command received")
+            logger.debug("exit command received")
             # self.window_manager.reset_wallpaper()
             self.stop()
         elif commands["VISIBILITY"] in values:
-            Logger.debug("Hide / Show command received")
+            logger.debug("Hide / Show command received")
             self.toggle_window_visibility()
         elif commands["PLAY"] in values:
-            Logger.debug("Play command received")
+            logger.debug("Play command received")
             self.play()
         elif commands["PAUSE"] in values:
-            Logger.debug("Pause command received")
+            logger.debug("Pause command received")
             self.pause()
         elif commands["CHANGE"] in values:
-            Logger.debug("Change command received")
+            logger.debug("Change command received")
             self.change_wallpaper()
 
     def ping(self, *values):
-        # Logger.debug("Received ping")
+        # logger.debug("Received ping")
         wallpaper_osc.send_message(b"/pong", [True], log=False)
         Window.show()
         self.connected = True

@@ -5,13 +5,11 @@ from kivy.clock import Clock
 from kivy.properties import NumericProperty, BoundedNumericProperty, ColorProperty
 from kivy.uix.widget import Widget
 from kivy.utils import get_random_color
+
 from wallpaper_engine.wallpapers.wallpaper_base import WallpaperBase
 from wallpaper_engine.utils.config import Config
-from wallpaper_engine.utils.logger import LoggerClass
 
 module = pathlib.Path(__file__).stem
-Logger = LoggerClass(__name__)
-Logger.module = module
 
 settings_json = [
     {"type": "title", "title": "Rotating Squares Wallpaper Settings"},

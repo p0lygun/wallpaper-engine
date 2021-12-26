@@ -1,10 +1,7 @@
 from oscpy.server import OSCThreadServer
+from loguru import logger
 
 from ..utils.config import Config
-from ..utils.logger import LoggerClass
-
-Logger = LoggerClass(__name__)
-Logger.module = "OSC"
 
 
 class OscHighway:
@@ -13,7 +10,7 @@ class OscHighway:
     def __init__(self, name: str):
         if name not in ["wallpaper", "menu"]:
             raise ValueError("Invalid name for OSC instance")
-        Logger.debug(f"Init OSC for {name}")
+        logger.debug(f"Init OSC for {name}")
         self.server = OSCThreadServer()
         self.sections = ["wallpaper", "menu"]
         self.name = name
@@ -36,18 +33,18 @@ class OscHighway:
                     "port": -1,
                 },
             )
-        Logger.debug(f"OSC-{self.name} : server up on {self.server.getaddress()}")
+        logger.debug(f"OSC-{self.name} : server up on {self.server.getaddress()}")
         self.save_to_config()
 
     def stop(self):
-        Logger.debug("Stopping Server ")
+        logger.debug("Stopping Server ")
         self.server.stop_all()
 
     def send_message(
         self, osc_address: bytes, msg: [list, int, float, bytes], log=True
     ):
         if log:
-            Logger.debug(f"sending {str(osc_address)}, {msg}, {self.get_other_port()}")
+            logger.debug(f"sending {str(osc_address)}, {msg}, {self.get_other_port()}")
 
         if type(msg) == list:
             self.server.send_message(

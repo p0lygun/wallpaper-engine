@@ -16,15 +16,8 @@ from kivy.uix.settings import SettingsWithSidebar
 from kivy.core.window import Window
 import stackprinter
 import trio
+from loguru import logger
 
-try:
-    from wallpaper_engine.utils.logger import LoggerClass
-
-    LoggerClass.prefix = "WE-MENU"
-    Logger = LoggerClass(__name__)
-    Logger.module = "Menu"
-except ImportError:
-    pass
 from wallpaper_engine.utils.config import Config
 from wallpaper_engine.libs.osc import OscHighway
 from wallpaper_engine.utils.common import (
@@ -37,14 +30,14 @@ from wallpaper_engine.utils.common import (
 
 stackprinter.set_excepthook(style="darkbg2")
 
-
 menu_json = [
     {"type": "title", "title": "App"},
     {
-        "type": "numeric",
+        "type": "options",
         "title": "log level",
         "key": "log_level",
-        "desc": "Set the Level of debug [0, 10, 20, 30, 40, 50, 60]",
+        "options": ["DEBUG", "INFO", "WARNING", "CRITICAL"],
+        "desc": "Set the Level of debug",
         "section": "app",
     },
     {
@@ -91,44 +84,40 @@ class WallpaperEngineMenu(App):
         self.playing = True
 
     def on_start(self):
-        Logger.info("Starting Menu")
+        logger.info("Starting Menu")
         self.we_config.config.set("app", "first_run", False)
         log_level = self.we_config.config.get("app", "log_level")
-        if type(log_level) == str and log_level.isnumeric():
-            log_level = int(log_level)
-            if log_level in [0, 10, 20, 30, 40, 50]:
-                Logger.set_level(log_level)
-            else:
-                self.we_config.config.set("app", "log_level", 10)
+        logger.level(log_level)
+
         self.we_config.write()
         menu_osc.start()
         menu_osc.server.bind(b"/pong", self.pong)
 
         async def check_connection():
-            Logger.debug("Starting Connection Check Loop")
+            logger.debug("Starting Connection Check Loop")
             menu_osc.send_message(b"/ping", [True])
             while not self.connection_ok:
                 menu_osc.config.reload()
                 menu_osc.send_message(b"/ping", [True], log=False)
                 await trio.sleep(0.5)
-            Logger.debug("Connected to wallpaper")
+            logger.debug("Connected to wallpaper")
             Window.show()
 
         trio.run(check_connection)
 
     def on_stop(self):
-        Logger.debug("Closing.... Menu")
+        logger.debug("Closing.... Menu")
 
     def on_config_change(self, config, section, key, value):
-        Logger.debug(f"on_config_changed {(config, section, key, value)}")
+        logger.debug(f"on_config_changed {(config, section, key, value)}")
         if section == "app":
             if key == "log_level":
-                Logger.set_level(int(value))
+                logger.level(value)
 
         if config == self.we_config.config:
             if section == "wallpaper":
                 if key == "active":
-                    Logger.debug("Wallpaper Changed")
+                    logger.debug("Wallpaper Changed")
                     self.wallpaper_name = value
                     self.wallpaper_changed = True
 
@@ -161,7 +150,7 @@ class WallpaperEngineMenu(App):
         )
 
     def close_settings(self, settings=None):
-        Logger.debug("Closing Settings")
+        logger.debug("Closing Settings")
         super(WallpaperEngineMenu, self).close_settings(settings)
         if self.wallpaper_changed:
             super(WallpaperEngineMenu, self).destroy_settings()

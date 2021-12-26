@@ -17,15 +17,10 @@ from kivy.animation import Animation, AnimationTransition
 from kivy.core.window import Window
 from kivy.graphics import InstructionGroup, Color
 from kivy.graphics import SmoothLine
-
+from loguru import logger
 
 from wallpaper_engine.wallpapers.wallpaper_base import WallpaperBase
 from wallpaper_engine.utils.config import Config
-from wallpaper_engine.utils.logger import LoggerClass
-
-Logger = LoggerClass(__name__)
-module = pathlib.Path(__file__).stem
-Logger.module = module
 
 
 settings_json = [
@@ -84,7 +79,7 @@ class Wallpaper(WallpaperBase):
     def __init__(self, debug=False):
         super(Wallpaper, self).__init__()
         if not debug:
-            self.config = Config(local=True, module=module)
+            self.config = Config(local=True, module=pathlib.Path(__file__).stem)
             self.load_config(settings_json)
 
     def animate(self):
@@ -149,7 +144,7 @@ class Wallpaper(WallpaperBase):
         self.container = self.app.root.children[0].ids.container
         self.base_radius = Window.width * self.base_radius_factor
         self.shape_center = (Window.width / 2, Window.height / 2)
-        Logger.debug(self.shape_center)
+        logger.debug(self.shape_center)
         rose = Rose()
         rose.points_color = self.line_color
         rose.diffusion_points = self.shuffle_list(

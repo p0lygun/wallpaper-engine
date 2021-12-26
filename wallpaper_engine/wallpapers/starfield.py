@@ -7,11 +7,7 @@ from kivy.utils import get_color_from_hex
 from kivy.uix.widget import Widget
 
 from wallpaper_engine.wallpapers.wallpaper_base import WallpaperBase
-from wallpaper_engine.utils.logger import LoggerClass
 from wallpaper_engine.utils.config import Config
-
-Logger = LoggerClass(__name__)
-Logger.module = pathlib.Path(__file__).stem
 
 
 settings_json = [
@@ -55,7 +51,7 @@ class Wallpaper(WallpaperBase):
     def __init__(self, debug=False):
         super().__init__()
         if not debug:
-            self.config = Config(local=True, module=Logger.module)
+            self.config = Config(local=True, module=pathlib.Path(__file__).stem)
             self.load_config(settings_json)
 
     def animate(self):
