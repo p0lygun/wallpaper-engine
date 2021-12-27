@@ -7,10 +7,20 @@ from loguru import logger
 import stackprinter
 import trio
 
-command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
+logger.remove()
+logger.add(
+    sys.stdout,
+    colorize=True,
+    format="[ <lr>Wallpaper</> ]"
+    "[<b><fg #3b3b3b>{level: ^8}</></>]"
+    "[{name}.{function}:{line}]"
+    "[ {message} ]",
+    level="DEBUG",
+)
 
 
 async def launch_menu():
+    command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
     await trio.open_process(command)
 
 

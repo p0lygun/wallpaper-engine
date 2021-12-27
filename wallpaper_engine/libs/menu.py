@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 import importlib
 
@@ -29,6 +30,16 @@ from wallpaper_engine.utils.common import (
 )
 
 stackprinter.set_excepthook(style="darkbg2")
+logger.remove()
+logger.add(
+    sys.stdout,
+    colorize=True,
+    format="[ <lc>Menu</>      ]"
+    "[<b><fg #3b3b3b>{level: ^8}</></>]"
+    "[{name}.{function}:{line}]"
+    "[ {message} ]",
+    level="DEBUG",
+)
 
 menu_json = [
     {"type": "title", "title": "App"},
