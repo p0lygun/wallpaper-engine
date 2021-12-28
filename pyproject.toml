@@ -13,6 +13,7 @@ pywin32 = "^303"
 trio = "^0.19.0"
 Kivy = "^2.0.0"
 loguru = "^0.5.3"
+python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"
