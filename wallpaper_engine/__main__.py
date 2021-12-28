@@ -1,12 +1,15 @@
+import os
 import sys
 from pathlib import Path
 import win32api
 
+from dotenv import load_dotenv
 from kivy.config import Config
 from loguru import logger
 import stackprinter
 import trio
 
+load_dotenv()
 logger.remove()
 logger.add(
     sys.stdout,
@@ -15,7 +18,7 @@ logger.add(
     "[<b><fg #3b3b3b>{level: ^8}</></>]"
     "[{name}.{function}:{line}]"
     "[ {message} ]",
-    level="DEBUG",
+    level=os.getenv("WE_DEBUG_LEVEL"),
 )
 
 
