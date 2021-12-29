@@ -18,11 +18,21 @@ class WindowManager:
 
     def set_as_wallpaper(self):
         """Set's kivy windows as wallpaper."""
-        # get progman window handle
-        self.reset_wallpaper()
-        progman = win32gui.FindWindowEx(0, 0, "Progman", None)
-        # set message to progman
-        win32gui.SendMessage(progman, int("0x052C", 16))
+
+        # make a new workerw window
+        self._kill_workerw()
+        self.spawn_workerw()
+
+        win32gui.ShowWindow(self.WorkerW, 1)
+        # set kivy window as the wallpaper
+        self.kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
+        win32gui.SetParent(self.kivy_window, self.WorkerW)  # child , new parent
+
+    def reset_wallpaper(self):
+        self._kill_workerw()
+
+    def set_workerw(self, hwnd, extra):
+        """Set the hwnd of correct WorkerW instance."""
         # get correct WorkerW window
         # // 0x00010190 "" WorkerW
         # //   ...
@@ -30,24 +40,11 @@ class WindowManager:
         # //     0x000100F0 "FolderView" SysListView32
         # // 0x00100B8A "" WorkerW       <-- This is the WorkerW instance we are after!
         # // 0x000100EC "Program Manager"
-
-        win32gui.EnumWindows(self.set_workerw, None)
-        win32gui.ShowWindow(self.WorkerW, 1)
-        # set kivy window as the wallpaper
-        self.kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
-        win32gui.SetParent(self.kivy_window, self.WorkerW)  # child , new parent
-
-    def reset_wallpaper(self):
-        win32gui.EnumWindows(self.set_workerw, False)
-        win32gui.ShowWindow(self.WorkerW, 0)
-        win32gui.ShowWindow(self.WorkerW, 1)
-
-    def set_workerw(self, hwnd, extra):
-        """Set the hwnd of correct WorkerW instance."""
         self.desktop_icons = win32gui.FindWindowEx(hwnd, 0, "SHELLDLL_DefView", None)
         if self.desktop_icons:
+            logger.debug(f"SHELLDLL_DefView found at {hex(self.desktop_icons)}")
             self.WorkerW = win32gui.FindWindowEx(0, hwnd, "WorkerW", None)
-            if extra:
+            if extra and self.WorkerW:
                 logger.debug(f"WorkerW hwnd {hex(self.WorkerW)}")
 
     def toggle_workerw_visibility(self):
@@ -97,7 +94,35 @@ class WindowManager:
 
         return self.any_maximized
 
+    def spawn_workerw(self):
+        progman = win32gui.FindWindow("Progman", "Program Manager")
+        # set message to progman
+        logger.debug(f"Progman at {hex(progman)}")
+
+        # all the messages below must be sent in the same order for a successfully workerw creation
+        # this method :- https://www.codeproject.com/Articles/856020/Draw-Behind-Desktop-Icons-in-Windows-plus
+        # no longer works on win 11
+        # below is the only working way
+        win32gui.SendMessageTimeout(progman, 0x052C, 0xD, 1, win32con.SMTO_NORMAL, 1000)
+        win32gui.SendMessageTimeout(
+            progman, win32con.WM_ERASEBKGND, 0, 0, win32con.SMTO_NORMAL, 1000
+        )
+        win32gui.SendMessageTimeout(
+            progman, win32con.WM_ERASEBKGND, 0, 0, win32con.SMTO_NORMAL, 1000
+        )
+        win32gui.SendMessageTimeout(
+            progman, win32con.WM_ERASEBKGND, 0, 0, win32con.SMTO_NORMAL, 1000
+        )
+        win32gui.SendMessageTimeout(progman, 0x052C, 0xD, 1, win32con.SMTO_NORMAL, 1000)
+        win32gui.EnumWindows(self.set_workerw, True)
+
+    def _kill_workerw(self):
+        win32gui.EnumWindows(self.set_workerw, True)
+        if self.WorkerW:
+            win32gui.SendMessage(self.WorkerW, win32con.WM_CLOSE)
+
 
 if __name__ == "__main__":
     wm = WindowManager()
-    print(wm.check_maximized_window())
+    # wm.kill_workerw()
+    wm.spawn_workerw()
