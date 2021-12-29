@@ -7,7 +7,6 @@ from kivy.clock import Clock
 from kivy.lang.builder import Builder
 from kivy.resources import resource_find
 from kivy.cache import Cache
-from kivy.core.window import Window
 from loguru import logger
 
 from .osc import OscHighway
@@ -147,5 +146,4 @@ class WallpaperEngine(App):
     def ping(self, *values):
         # logger.debug("Received ping")
         wallpaper_osc.send_message(b"/pong", [True], log=False)
-        Window.show()
         self.connected = True

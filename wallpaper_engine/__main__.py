@@ -1,16 +1,29 @@
+import os
 import sys
 from pathlib import Path
 import win32api
 
+from dotenv import load_dotenv
 from kivy.config import Config
 from loguru import logger
 import stackprinter
 import trio
 
-command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
+load_dotenv()
+logger.remove()
+logger.add(
+    sys.stdout,
+    colorize=True,
+    format="[ <lr>Wallpaper</> ]"
+    "[<b><fg #3b3b3b>{level: ^8}</></>]"
+    "[{name}.{function}:{line}]"
+    "[ {message} ]",
+    level=os.getenv("WE_DEBUG_LEVEL"),
+)
 
 
 async def launch_menu():
+    command = f"{sys.executable} {Path(__file__).parent / 'libs' / 'menu.py'}"
     await trio.open_process(command)
 
 

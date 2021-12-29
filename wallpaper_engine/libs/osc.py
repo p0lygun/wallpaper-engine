@@ -44,7 +44,9 @@ class OscHighway:
         self, osc_address: bytes, msg: [list, int, float, bytes], log=True
     ):
         if log:
-            logger.debug(f"sending {str(osc_address)}, {msg}, {self.get_other_port()}")
+            logger.debug(
+                f"sending {osc_address.decode('utf-8')}, {msg}, {self.get_other_port()}"
+            )
 
         if type(msg) == list:
             self.server.send_message(
