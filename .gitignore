@@ -212,3 +212,6 @@ cython_debug/
 /tmp_run.bat
 /wallpaper_engine/data/kivy_backend_config
 /ideas/
+
+# temp files
+temp*
