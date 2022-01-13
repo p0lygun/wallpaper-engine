@@ -7,7 +7,7 @@ from wallpaper_engine.wallpapers.wallpaper_base import WallpaperBase, ShaderBase
 from wallpaper_engine.utils.common import wallpaper_dir
 
 settings_json = [
-    {"type": "title", "title": "Fibonacci sphere wallpaper Settings"},
+    {"type": "title", "title": "GLSL loader Settings"},
     {
         "type": "options",
         "title": "shader file",
