@@ -220,12 +220,12 @@ class Wallpaper(WallpaperBase):
             self.container.add_widget(point)
 
     def pause(self):
-        if self.playing:
+        if self.playing and self.animation_loop_clock:
             self.animation_loop_clock.cancel()
             self.playing = False
 
     def play(self):
-        if not self.playing:
+        if not self.playing and self.animation_loop_clock:
             self.time_init = time.time()
             self.animation_loop_clock()
             self.playing = True
