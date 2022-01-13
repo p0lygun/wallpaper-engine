@@ -11,7 +11,7 @@ from loguru import logger
 
 from .osc import OscHighway
 from ..utils.config import Config
-from ..utils.common import commands
+from ..utils.common import commands, wallpaper_dir
 from .window_manager import WindowManager
 
 
@@ -83,7 +83,17 @@ class WallpaperEngine(App):
         self.wallpaper_file_name = self.we_config.config.get("wallpaper", "active")
         # load  wallpaper kv before init
         # sin_wave -> sinwave.kv
-        self.kv_file_name = "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
+        if (
+            (wallpaper_dir / "glsl_wallpapers" / self.wallpaper_file_name)
+            .with_suffix(".glsl")
+            .exists()
+        ):
+            self.kv_file_name = "shaderwallpaperbase.kv"
+        else:
+            self.kv_file_name = (
+                "".join(self.wallpaper_file_name.lower().split("_")) + ".kv"
+            )
+
         Builder.load_file(resource_find(self.kv_file_name))
         try:
             self.wallpaper_module = importlib.import_module(
