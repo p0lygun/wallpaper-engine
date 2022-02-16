@@ -31,7 +31,9 @@ stackprinter.set_excepthook(style="darkbg2")
 
 if __name__ == "__main__":
     try:
-        engine_debug = os.getenv("WE_ENGINE_DEBUG", False)
+        engine_debug = (
+            True if os.getenv("WE_ENGINE_DEBUG", "False") == "True" else False
+        )
         logger.debug("Starting Menu")
         trio.run(launch_menu)
         Config.read(str(Path(__file__).parent / "data" / "kivy_backend_config"))
