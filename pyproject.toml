@@ -11,7 +11,7 @@ oscpy = "^0.6.0"
 appdirs = "^1.4.4"
 pywin32 = "^303"
 trio = "^0.19.0"
-Kivy = "^2.0.0"
+Kivy = {version="2.1.0rc1", allow-prereleases = true}
 loguru = "^0.5.3"
 python-dotenv = "^0.19.2"
 

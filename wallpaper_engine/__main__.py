@@ -18,7 +18,7 @@ logger.add(
     "[<b><fg #3b3b3b>{level: ^8}</></>]"
     "[{name}.{function}:{line}]"
     "[ {message} ]",
-    level=os.getenv("WE_DEBUG_LEVEL"),
+    level=os.getenv("WE_DEBUG_LEVEL", "DEBUG"),
 )
 
 
