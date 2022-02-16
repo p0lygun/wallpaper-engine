@@ -31,7 +31,7 @@ stackprinter.set_excepthook(style="darkbg2")
 
 if __name__ == "__main__":
     try:
-        engine_debug = False
+        engine_debug = os.getenv("WE_ENGINE_DEBUG", False)
         logger.debug("Starting Menu")
         trio.run(launch_menu)
         Config.read(str(Path(__file__).parent / "data" / "kivy_backend_config"))
@@ -45,7 +45,12 @@ if __name__ == "__main__":
         else:
             Config.set("graphics", "borderless", "0")
             Config.set("graphics", "resizable", "1")
-            Config.set("graphics", "window_state", "hidden")
+            Config.set(
+                "graphics", "width", f"{int(win32api.GetSystemMetrics(0) * 0.5)}"
+            )
+            Config.set(
+                "graphics", "height", f"{int(win32api.GetSystemMetrics(1) * 0.5)}"
+            )
         Config.write()
         from kivy.resources import resource_add_path
 
