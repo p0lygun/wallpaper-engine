@@ -1,5 +1,3 @@
-import os
-
 import win32con
 import win32gui
 import win32api
@@ -20,6 +18,9 @@ class WindowManager:
         # windows that will not pause the wallpaper (a list of Class Name of the windows)
         self.excluded_windows = ["SunAwtFrame"]
 
+    def init_data(self):
+        self.kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
+
     def set_as_wallpaper(self):
         """Set's kivy windows as wallpaper."""
 
@@ -29,7 +30,6 @@ class WindowManager:
 
         win32gui.ShowWindow(self.WorkerW, 1)
         # set kivy window as the wallpaper
-        self.kivy_window = win32gui.FindWindowEx(0, 0, 0, self.app.title)
         win32gui.SetParent(self.kivy_window, self.WorkerW)  # child , new parent
 
     def reset_wallpaper(self):
@@ -81,15 +81,13 @@ class WindowManager:
                 if monitor_handle == win32api.MonitorFromPoint(
                     (0, 0), win32con.MONITOR_DEFAULTTOPRIMARY
                 ):
-                    check_exclude = os.getenv(
-                        "WE_ENGINE_DEBUG", False
-                    )  # only check if we are debugging the engine
-                    if check_exclude:
-                        if win32gui.GetClassName(hwnd) in self.excluded_windows:
+                    if win32gui.GetWindowText(hwnd) != "Settings":
+                        if (
+                            self.app.engine_debug
+                            and win32gui.GetClassName(hwnd) in self.excluded_windows
+                        ):
                             pass
-
-                    if win32gui.GetClassName(hwnd) not in self.excluded_windows:
-                        if win32gui.GetWindowText(hwnd) != "Settings":
+                        else:
                             if hwnd not in self.maximized_windows:
                                 self.maximized_windows.append(hwnd)
                                 if extra:
