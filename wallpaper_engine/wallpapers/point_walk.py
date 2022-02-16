@@ -3,6 +3,8 @@ import random
 import time
 from math import dist
 
+import win32gui
+from kivy.app import App
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.properties import NumericProperty
@@ -142,6 +144,14 @@ class Wallpaper(WallpaperBase):
             tf = time.time()
             dt = tf - self.time_init
             Lines.clear()
+            hwnd = 0
+            try:
+                hwnd = App.get_running_app().window_manager.kivy_window
+                x, y = win32gui.ScreenToClient(hwnd, win32gui.GetCursorPos())
+                y = Window.height - y
+            except AttributeError:
+                pass
+
             for point in self.points:
                 if point.pos_x > Window.width:
                     point.pos_x += -Window.width
@@ -179,6 +189,26 @@ class Wallpaper(WallpaperBase):
                                     width=self.line_width,
                                 )
                             )
+                if hwnd:
+                    mouse_dist = dist([point.center_x, point.center_y], [x, y])
+                    if mouse_dist <= self.line_length:
+                        if point.spotlight:
+                            color = Color(rgba=self.spotlight_color)
+                        else:
+                            color = Color(rgba=self.secondary_color)
+                        color.a = (self.line_length - mouse_dist) / self.line_length
+                        Lines.add(color)
+                        Lines.add(
+                            Line(
+                                points=(
+                                    point.center_x,
+                                    point.center_y,
+                                    x,
+                                    y,
+                                ),
+                                width=2,
+                            )
+                        )
                     else:
                         if p in connection[point]:
                             connection[point].remove(p)
