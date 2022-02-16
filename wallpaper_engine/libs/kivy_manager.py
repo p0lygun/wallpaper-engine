@@ -41,6 +41,7 @@ class WallpaperEngine(App):
         self.title = (
             self.get_application_name() + "_" + self.we_config.config.get("app", "uuid")
         )
+        self.window_manager.init_data()
 
     def on_stop(self, *args):
         logger.debug("Stopping Wallpaper and exiting")
