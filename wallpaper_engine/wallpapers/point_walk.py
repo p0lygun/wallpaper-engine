@@ -17,7 +17,6 @@ from kivy.utils import get_color_from_hex
 from .wallpaper_base import WallpaperBase
 from ..utils.config import Config
 
-
 __all__ = ["Wallpaper"]
 
 settings_json = [
@@ -123,7 +122,7 @@ class Wallpaper(WallpaperBase):
     # in pixels
     velocity = NumericProperty(60, errorhandler=lambda x: 60)
     line_length = NumericProperty(150, errorhandler=lambda x: 150)
-    line_width = NumericProperty(1.5, errorhandler=lambda x: 1.5)
+    line_width = NumericProperty(1, errorhandler=lambda x: 1)
     point_size = NumericProperty(7, errorhandler=lambda x: 7)
 
     def __init__(self):
@@ -153,9 +152,7 @@ class Wallpaper(WallpaperBase):
                     point.pos_y += -Window.height
                 elif point.pos_y < 0:
                     point.pos_y += Window.height
-                for p in self.points:
-                    if p == point:
-                        continue
+                for p in [p_ for p_ in self.points if p_ != point]:
                     distance = dist(
                         [point.center_x, point.center_y], [p.center_x, p.center_y]
                     )
@@ -169,7 +166,7 @@ class Wallpaper(WallpaperBase):
                             else:
                                 color = Color(rgba=self.secondary_color)
 
-                            color.a = (self.line_length - distance) / 100
+                            color.a = (self.line_length - distance) / self.line_length
                             Lines.add(color)
                             Lines.add(
                                 Line(
