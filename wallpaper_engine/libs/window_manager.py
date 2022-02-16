@@ -1,3 +1,5 @@
+import os
+
 import win32con
 import win32gui
 import win32api
@@ -15,6 +17,8 @@ class WindowManager:
         self.kivy_window = 0
         self.any_maximized = False
         self.maximized_windows = []
+        # windows that will not pause the wallpaper (a list of Class Name of the windows)
+        self.excluded_windows = ["SunAwtFrame"]
 
     def set_as_wallpaper(self):
         """Set's kivy windows as wallpaper."""
@@ -77,15 +81,26 @@ class WindowManager:
                 if monitor_handle == win32api.MonitorFromPoint(
                     (0, 0), win32con.MONITOR_DEFAULTTOPRIMARY
                 ):
-                    if win32gui.GetWindowText(hwnd) != "Settings":
-                        if hwnd not in self.maximized_windows:
-                            self.maximized_windows.append(hwnd)
-                            if extra:
-                                logger.debug(
-                                    f"Maximized Window {win32gui.GetWindowText(hwnd)}, {hex(hwnd)}, {window_placement}"
-                                )
-                            self.last_maximized = hwnd
-                        self.any_maximized = True
+                    check_exclude = os.getenv(
+                        "WE_ENGINE_DEBUG", False
+                    )  # only check if we are debugging the engine
+                    if check_exclude:
+                        if win32gui.GetClassName(hwnd) in self.excluded_windows:
+                            pass
+
+                    if win32gui.GetClassName(hwnd) not in self.excluded_windows:
+                        if win32gui.GetWindowText(hwnd) != "Settings":
+                            if hwnd not in self.maximized_windows:
+                                self.maximized_windows.append(hwnd)
+                                if extra:
+                                    logger.debug(
+                                        f"Maximized Window "
+                                        f"{win32gui.GetWindowText(hwnd)}, "
+                                        f"{hex(hwnd)}, {window_placement}"
+                                    )
+                                self.last_maximized = hwnd
+                            self.any_maximized = True
+
             else:
                 if hwnd in self.maximized_windows:
                     self.maximized_windows.remove(hwnd)
