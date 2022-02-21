@@ -103,7 +103,8 @@ class WindowManager:
                 if hwnd in self.maximized_windows:
                     self.maximized_windows.remove(hwnd)
 
-        win32gui.EnumWindows(inner_check, True)
+        if not self.app.engine_debug:
+            win32gui.EnumWindows(inner_check, True)
 
         return self.any_maximized
 
