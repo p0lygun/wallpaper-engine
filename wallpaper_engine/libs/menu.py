@@ -147,7 +147,7 @@ class WallpaperEngineMenu(App):
         wallpaper_module = importlib.import_module(
             f".wallpapers.{self.wallpaper_name}", "wallpaper_engine"
         )
-        wallpaper_module.Wallpaper()
+
         wallpaper_settings_json = wallpaper_module.settings_json
         self.wallpaper_config = Config(local=True, module=self.wallpaper_name)
         settings.add_json_panel(
