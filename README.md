@@ -13,23 +13,23 @@ Anything you can make in Kivy can be set as you wallpaper (given it does not req
 
 ### only tested on [CPython](https://www.python.org/)
 
-installing Wallpaper Engine  is very easy 
+installing Wallpaper Engine  is very easy
 
 First install [Poetry](https://python-poetry.org/) (it's an awesome package manager for python)  
 
   clone this repo and cd into dir
 
 	git clone "https://github.com/p0lygun/wallpaper-engine.git" && cd wallpaper-engine
-	
+
   Install required packages using poetry
 
 	poetry install  
 
   RUN !!!
 
-	poetry run python wallpaper_engine    
-	
- 
+	poetry run python wallpaper_engine  
+
+
 That's it. The wallpaper-engine is now installed, you should see a window like this  
 
 ![image](https://user-images.githubusercontent.com/22869882/134038091-7ec94b3a-501e-458c-830c-80a9c05b34d9.png)
@@ -48,7 +48,7 @@ settings are updated as soon as you enter the value and close the pop-up
 
 if you want to make you own wallpaper its very easy  
 
-but first you should make familiar with the directory structure   
+but first you should make familiar with the directory structure  
 
 ```py
 D:.
@@ -69,7 +69,7 @@ so to make a new wallpaper make a new file in wallpaper directory `(the file nam
 
 then in `wallpapers\kv` make a kv file with name `snakecase.kv`
 
-> so If your wallpaper name is `my_wallpaper.py` its kv file name will be `mywallpaper.kv` 
+> so If your wallpaper name is `my_wallpaper.py` its kv file name will be `mywallpaper.kv`
 
 Ok  now lets make a Wallpaper
 
@@ -78,7 +78,7 @@ Ok  now lets make a Wallpaper
 Now any wallpaper has a `Wallpaper` Class that inherits from `WallpaperBase`
 So this is the main class for any wallpaper and only this will be called by `kivy_manager`
 
-Each kivy file also must contain the following kv code 
+Each kivy file also must contain the following kv code
 ```
 <Wallpaper>:
     size_hint : (1,1)
@@ -103,27 +103,27 @@ now each `Wallpaper` class gets two function from WallpaperBase that one must ov
 So you shuld handle the animation in your wallpaper using `Animation` or using `Clock.schedule_interval` or `Clock.schedule_once` or a combination of all three
 
 >If you use `Clock.schedule_interval` as your main animation driver set the `self.animation_loop_clock` to the `schedule_interval`  
->Example [point_walk.py#L199](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/point_walk.py#L199) 
+>Example [point_walk.py#L199](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/point_walk.py#L199)
 >and set `self.playing = True`
 
 No matter how you handle the animation try to implement (or override) function for [`play`](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/point_walk.py#L230) and [`pause`](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/point_walk.py#L225) so that the kivy_manager can pause your wallpaper when your desktop is not in focus
 
 ## Making wallpaper config and Settings
 
-> #### You need to do this only if you want to save settings to disk 
+> #### You need to do this only if you want to save settings to disk
 
-To make a config for your wallpaper 
+To make a config for your wallpaper
 define the `__init__` as [defined](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/starfield.py#L55)
 
-the `Config` object takes two optional args `local` and `module` 
+the `Config` object takes two optional args `local` and `module`
 
 > local means that this a personal config not a gloabal one
 > module take the file name as the value (`pathlib.Path(__file__).stem`)
 
-To make a settings panel we use the same format as [kivy settings](https://kivy.org/doc/stable/api-kivy.uix.settings.html#create-a-panel-from-json) 
-you just need to make a Json 
+To make a settings panel we use the same format as [kivy settings](https://kivy.org/doc/stable/api-kivy.uix.settings.html#create-a-panel-from-json)
+you just need to make a Json
 
-here is an example 
+here is an example
 ```py
 settings_json = [
     {"type": "title", "title": "Star Field wallpaper Settings"},
@@ -145,12 +145,10 @@ settings_json = [
 ```
 each dict in the list must have section `wallpaper` and the keys must be [class variables](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/starfield.py#L48) that you want to save to disk
 
->if there is a interger in the variables use [`is_int`](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/point_walk.py#L62) to mark that variable as an integer 
+>if there is a interger in the variables use [`is_int`](https://github.com/p0lygun/wallpaper-engine/blob/main/wallpaper_engine/wallpapers/point_walk.py#L62) to mark that variable as an integer
 
 Then at last call `self.load_settings` with the `settings_json` as the first argument
 
 now you have settings and save to disk done !!!
 
 I know all this can be tough to understand at first so you can DM me anytime on [Discord](https://discord.com/users/338947895665360898) or join [Kivy discord server](https://chat.kivy.org)
-
-
