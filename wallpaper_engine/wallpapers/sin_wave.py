@@ -94,7 +94,6 @@ class Wallpaper(WallpaperBase):
         )
 
     def build(self):
-
         logger.debug("Building wallpaper")
         self.app = App.get_running_app()
         self.container = self.app.root.children[0].ids.container
